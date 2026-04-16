@@ -1,0 +1,47 @@
+<div class="admin-wrapper">
+  <div class="glass-panel admin-card">
+    <div class="admin-header">
+      <h2>Platform Users</h2>
+      <p>Manage access and view registered members on SpendSmart.</p>
+    </div>
+
+    <div class="table-container" *ngIf="!loading">
+      <table class="glass-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>#{{ user.userId }}</td>
+            <td class="font-bold">{{ user.fullName }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="role-badge" [ngClass]="user.role.toLowerCase()">{{ user.role }}</span>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="user.active ? 'active' : 'inactive'">
+                {{ user.active ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-sm" [class.btn-danger]="user.active" [class.btn-success]="!user.active" (click)="toggleActiveStatus(user)">
+                {{ user.active ? 'Disable' : 'Enable' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+      <span class="spinner"></span>
+    </div>
+  </div>
+</div>

@@ -1,10 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
+import { AuthService } from '../../../core/services/auth';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
-  standalone: true, 
+  standalone: false,
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss',
+  styleUrls: ['./navbar.scss']
 })
-export class NavbarComponent {}
+export class NavbarComponent {
+  isLoggedIn = computed(() => !!this.authService.getCurrentUser());
+
+  constructor(
+    public authService: AuthService,
+    public themeService: ThemeService
+  ) {}
+
+  isDarkMode() {
+    return this.themeService.isDarkMode();
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+}

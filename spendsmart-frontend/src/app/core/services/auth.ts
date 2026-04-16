@@ -1,87 +1,196 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { tap, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { throwError, Observable, BehaviorSubject } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest, User } from '../models/user.model';
 
-// @Injectable({ providedIn: 'root' }) makes this a singleton service
-// available throughout the entire app without needing to add it to any module's providers
-@Injectable({ providedIn: 'root' })
+/**
+ * UNIFIED AuthService - Single source of truth for auth state
+ * 
+ * Usage:
+ * - login() → POST /auth/login → saves token → navigates to dashboard
+ * - isLoggedIn() → checks token existence
+ * - getCurrentUser() → returns cached user data
+ * - logout() → clears token → navigates to login
+ * 
+ * All API calls go through the Gateway (localhost:8080)
+ * Token is stored in localStorage under key 'token'
+ */
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  private baseUrl = 'http://localhost:8081/auth';
+  private readonly TOKEN_KEY = 'token';
+  private readonly USER_KEY = 'auth';
+  private readonly GATEWAY_URL = environment.apiUrl;
 
-  // BehaviorSubject holds the current value AND emits it to new subscribers immediately
-  // This is how all components stay in sync with the logged-in user state
-  // null means no user is logged in
+  // BehaviorSubject for reactive user state
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(null);
-
-  // Expose as Observable — components can subscribe but can't call .next() from outside
-  // This protects the auth state from being modified by any component directly
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // On app startup, check if a token already exists in localStorage
-    // This keeps the user logged in across browser refreshes
-    const stored = localStorage.getItem('auth');
-    if (stored) this.currentUserSubject.next(JSON.parse(stored));
+  // Signal for dashboard/navbar reactivity
+  currentUser = signal<AuthResponse | null>(null);
+  isAuthenticated = signal<boolean>(false);
+
+  constructor() {
+    this.restoreAuthState();
   }
 
+  /**
+   * Restore auth state from localStorage on app startup.
+   * Keeps user logged in across browser refreshes.
+   */
+  private restoreAuthState(): void {
+    const token = this.getToken();
+    const stored = localStorage.getItem(this.USER_KEY);
+
+    if (token && stored) {
+      try {
+        const user = JSON.parse(stored) as AuthResponse;
+        this.currentUserSubject.next(user);
+        this.currentUser.set(user);
+        this.isAuthenticated.set(true);
+      } catch {
+        this.clearAuthState();
+      }
+    }
+  }
+
+  /**
+   * Register a new user.
+   */
   register(request: RegisterRequest): Observable<User> {
-    // Returns the created User object — the caller (RegisterComponent) decides what to do next
-    return this.http.post<User>(`${this.baseUrl}/register`, request);
+    return this.http.post<User>(`${this.GATEWAY_URL}/auth/register`, request);
   }
 
+  /**
+   * Login with email/password.
+   * POST goes through gateway to auth-service (/auth/login).
+   * Backend returns AuthResponse { token, userId, fullName, email, role }
+   */
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, request).pipe(
-      // tap() performs a side effect without modifying the stream value
-      // Here we persist the token and update the BehaviorSubject when login succeeds
+    return this.http.post<AuthResponse>(`${this.GATEWAY_URL}/auth/login`, request).pipe(
       tap(response => {
-        localStorage.setItem('auth', JSON.stringify(response)); // persist full auth object
-        localStorage.setItem('token', response.token);          // persist token separately for quick access
-        this.currentUserSubject.next(response);                  // notify all subscribers of login
-      })
+        this.setAuthState(response);
+        this.router.navigate(['/dashboard']);
+      }),
+      catchError(err => throwError(() => err))
     );
   }
 
+  /**
+   * Save auth response to localStorage and update auth state.
+   */
+  private setAuthState(response: AuthResponse): void {
+    localStorage.setItem(this.TOKEN_KEY, response.token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(response));
+    this.currentUserSubject.next(response);
+    this.currentUser.set(response);
+    this.isAuthenticated.set(true);
+  }
+
+  /**
+   * Logout — clear token and redirect to login.
+   */
   logout(): void {
-    // Clear everything from localStorage so there's no stale token on next visit
-    localStorage.removeItem('auth');
-    localStorage.removeItem('token');
-    // null tells all subscribers (navbar, guards) that no one is logged in
+    this.clearAuthState();
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Clear all auth state and localStorage.
+   */
+  private clearAuthState(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
+    this.currentUser.set(null);
+    this.isAuthenticated.set(false);
   }
 
+  /**
+   * Get JWT token from localStorage.
+   * Used by interceptors to attach Authorization header.
+   */
   getToken(): string | null {
-    // Simple getter used by the JWT interceptor to attach the token to every request
-    return localStorage.getItem('token');
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  /**
+   * Check if user is logged in.
+   * Used by AuthGuard to protect routes.
+   */
   isLoggedIn(): boolean {
-    // AuthGuard uses this to decide whether to allow route navigation
-    return !!this.getToken(); // !! converts string | null to boolean
+    return !!this.getToken();
   }
 
+  /**
+   * Get cached user data (synchronous snapshot).
+   */
   getCurrentUser(): AuthResponse | null {
-    // .value gives the current snapshot of the BehaviorSubject
-    // Use this when you need the value once, not a reactive stream
     return this.currentUserSubject.value;
   }
 
+  /**
+   * Forgot password — Step 1: Send OTP to email.
+   */
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.GATEWAY_URL}/auth/forgot-password`,
+      { email }
+    );
+  }
+
+  /**
+   * Reset password — Step 2: Verify OTP and set new password.
+   */
+  resetPassword(data: { email: string; otp: string; newPassword: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.GATEWAY_URL}/auth/reset-password`,
+      data
+    );
+  }
+
+  /**
+   * Get user profile by ID.
+   */
   getProfile(userId: number): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/profile/${userId}`);
+    return this.http.get<User>(`${this.GATEWAY_URL}/auth/profile/${userId}`);
   }
 
+  /**
+   * Update user profile.
+   */
   updateProfile(userId: number, data: Partial<User>): Observable<User> {
-    // Partial<User> means any subset of User fields is valid
-    return this.http.put<User>(`${this.baseUrl}/profile/${userId}`, data);
+    return this.http.put<User>(`${this.GATEWAY_URL}/auth/profile/${userId}`, data);
   }
 
+  /**
+   * Change password.
+   */
   changePassword(userId: number, data: { currentPassword: string; newPassword: string }): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/password/${userId}`, data);
+    return this.http.put<void>(`${this.GATEWAY_URL}/auth/password/${userId}`, data);
   }
 
+  /**
+   * Update currency setting.
+   */
   updateCurrency(userId: number, currency: string): Observable<void> {
-    // currency is a query param, not a request body, matching the BE endpoint signature
-    return this.http.put<void>(`${this.baseUrl}/currency/${userId}?currency=${currency}`, {});
+    return this.http.put<void>(
+      `${this.GATEWAY_URL}/auth/currency/${userId}?currency=${currency}`,
+      {}
+    );
+  }
+
+  /**
+   * Deactivate account.
+   */
+  deactivateAccount(userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.GATEWAY_URL}/auth/deactivate/${userId}`);
   }
 }

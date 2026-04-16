@@ -1,1 +1,57 @@
-<p>register works!</p>
+<div class="auth-wrapper">
+  <!-- Dynamic Orbs for background decoration -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="glass-panel auth-card">
+    <div class="auth-header">
+      <h2 class="text-gradient">Join SpendSmart</h2>
+      <p>Create an account to start tracking.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe" class="glass-input">
+        <div class="error-text" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+          Full Name is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="you@example.com" class="glass-input">
+        <div class="error-text" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+          Please enter a valid email.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="••••••••" class="glass-input">
+        <div class="error-text" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+          Password must be at least 8 characters.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="••••••••" class="glass-input">
+        <div class="error-text" *ngIf="form.hasError('mismatch') && (form.get('confirmPassword')?.touched || form.get('password')?.touched)">
+          Passwords do not match.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary auth-submit" [disabled]="loading || form.invalid">
+        <span *ngIf="loading" class="spinner"></span>
+        <span *ngIf="!loading">Create Account</span>
+      </button>
+
+      <p class="auth-footer">
+        Already have an account? <a routerLink="/login">Sign In</a>
+      </p>
+    </form>
+  </div>
+</div>

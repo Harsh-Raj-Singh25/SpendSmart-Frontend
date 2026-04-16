@@ -1,33 +1,53 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>SpendSmart</mat-card-title>
-      <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
-    </mat-card-header>
+<div class="auth-wrapper">
+  <!-- Dynamic Orbs for background decoration -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="you@email.com">
-          <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email</mat-error>
-        </mat-form-field>
+  <div class="glass-panel auth-card">
+    <div class="auth-header">
+      <h2 class="text-gradient">Welcome to SpendSmart</h2>
+      <p>Log in to manage your budget effortlessly.</p>
+    </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="password">
-        </mat-form-field>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="you@example.com" class="glass-input">
+        <div class="error-text" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+          Please enter a valid email.
+        </div>
+      </div>
 
-        <button mat-raised-button color="primary" type="submit"
-                class="full-width" [disabled]="loading">
-          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-          <span *ngIf="!loading">Sign In</span>
-        </button>
-      </form>
-    </mat-card-content>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="••••••••" class="glass-input">
+      </div>
 
-    <mat-card-actions>
-      <p>Don't have an account? <a routerLink="/register">Register</a></p>
-    </mat-card-actions>
-  </mat-card>
+      <div class="form-options">
+        <label class="remember-me">
+          <input type="checkbox"> Remember me
+        </label>
+        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-primary auth-submit" [disabled]="loading || form.invalid">
+        <span *ngIf="loading" class="spinner"></span>
+        <span *ngIf="!loading">Sign In</span>
+      </button>
+
+      <div class="auth-divider">
+        <span>OR</span>
+      </div>
+
+      <button type="button" class="btn-google" (click)="loginWithGoogle()">
+        <img src="https://www.google.com/favicon.ico" alt="Google">
+        Continue with Google
+      </button>
+
+      <p class="auth-footer">
+        Don't have an account? <a routerLink="/register">Sign up now</a>
+      </p>
+    </form>
+  </div>
 </div>

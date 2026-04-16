@@ -1,0 +1,113 @@
+<div class="dashboard-wrapper">
+  <!-- Top Summary Cards -->
+  <div class="summary-cards">
+    <div class="glass-panel summary-card balance-card">
+      <div class="card-icon balance-icon">💼</div>
+      <div class="card-info">
+        <h3>Total Balance</h3>
+        <h2 class="amount">{{ balance | currency:'INR':'symbol':'1.2-2' }}</h2>
+        <p class="metric-subtitle">{{ trend >= 0 ? '+' : '' }}{{ trend }}% vs spend</p>
+      </div>
+    </div>
+
+    <div class="glass-panel summary-card income-card">
+      <div class="card-icon income-icon">📈</div>
+      <div class="card-info">
+        <h3>Total Income</h3>
+        <h2 class="amount text-success">+{{ income | currency:'INR':'symbol':'1.2-2' }}</h2>
+      </div>
+    </div>
+
+    <div class="glass-panel summary-card expense-card">
+      <div class="card-icon expense-icon">📉</div>
+      <div class="card-info">
+        <h3>Total Expense</h3>
+        <h2 class="amount text-danger">-{{ expense | currency:'INR':'symbol':'1.2-2' }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="dashboard-content">
+    
+    <!-- Recent Transactions -->
+    <div class="glass-panel transactions-panel">
+      <div class="panel-header">
+        <h3>Recent Transactions</h3>
+        <button class="btn-primary btn-sm" (click)="loadTransactions()">Refresh</button>
+      </div>
+
+      <div class="tx-controls">
+        <input
+          class="tx-search"
+          placeholder="Search by title/category"
+          [value]="searchTerm"
+          (input)="onSearchChange($any($event.target).value)"
+        />
+        <div class="tx-filters">
+          <button class="btn-chip" [class.active]="selectedType === 'ALL'" (click)="setTypeFilter('ALL')">All</button>
+          <button class="btn-chip" [class.active]="selectedType === 'INCOME'" (click)="setTypeFilter('INCOME')">Income</button>
+          <button class="btn-chip" [class.active]="selectedType === 'EXPENSE'" (click)="setTypeFilter('EXPENSE')">Expense</button>
+        </div>
+      </div>
+
+      <div class="transaction-list">
+        <div class="transaction-item" *ngFor="let tx of filteredTransactions">
+          <div class="tx-icon" [ngClass]="tx.type.toLowerCase() + '-icon-bg'">
+            <span *ngIf="tx.type === 'INCOME'">💰</span>
+            <span *ngIf="tx.type === 'EXPENSE'">🛒</span>
+          </div>
+          <div class="tx-details">
+            <h4>{{ tx.category }}</h4>
+            <p>{{ tx.description }}</p>
+          </div>
+          <div class="tx-meta">
+            <h4 [class.text-success]="tx.type === 'INCOME'" [class.text-danger]="tx.type === 'EXPENSE'">
+              {{ tx.type === 'INCOME' ? '+' : '-' }}{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}
+            </h4>
+            <p>{{ tx.date | date:'shortDate' }}</p>
+          </div>
+          <button class="btn-delete" (click)="removeTransaction(tx)" title="Remove transaction">✕</button>
+        </div>
+        <p class="empty-state" *ngIf="filteredTransactions.length === 0">No transactions match your filters yet.</p>
+      </div>
+    </div>
+
+    <!-- Right Sidebar for Features -->
+    <div class="sidebar-panels">
+      <!-- Add New Quick Action -->
+      <div class="glass-panel action-panel">
+        <h3>Quick Add</h3>
+        <p>Add a new expense or income source instantly.</p>
+        <div class="quick-add-grid">
+          <select [value]="quickType" (change)="quickType = $any($event.target).value">
+            <option value="EXPENSE">Expense</option>
+            <option value="INCOME">Income</option>
+          </select>
+          <input type="number" min="0" placeholder="Amount" [value]="quickAmount" (input)="quickAmount = +($any($event.target).value || 0)" />
+          <input type="text" placeholder="Description" [value]="quickDescription" (input)="quickDescription = $any($event.target).value" />
+        </div>
+        <button class="btn-primary full-width mt-4" (click)="addQuickTransaction()">+ Add Transaction</button>
+      </div>
+
+      <!-- Freemium Mechanics Panel -->
+      <div class="glass-panel freemium-panel" *ngIf="!isPremium">
+        <div class="freemium-header">
+          <h3>Daily Limit</h3>
+          <span class="badge">Free Tier</span>
+        </div>
+        <p class="limit-text">You have used <strong>{{ transactionService.dailyTransactionCount() }}</strong> out of <strong>{{ transactionService.FREE_DAILY_LIMIT }}</strong> free transactions today.</p>
+        
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="(transactionService.dailyTransactionCount() / transactionService.FREE_DAILY_LIMIT) * 100"></div>
+        </div>
+
+        <div class="upgrade-promo">
+          <p>Need unlimited transactions?</p>
+          <a routerLink="/premium" class="btn-upgrade">Upgrade to Premium ⚡</a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

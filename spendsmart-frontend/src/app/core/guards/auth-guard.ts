@@ -9,11 +9,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): boolean {
     if (this.authService.isLoggedIn()) {
-      // Token exists in localStorage — allow navigation to the requested route
       return true;
     }
-    // No token — redirect to login and block the requested route
-    // Angular Router will not activate the route if we return false
     this.router.navigate(['/login']);
     return false;
   }

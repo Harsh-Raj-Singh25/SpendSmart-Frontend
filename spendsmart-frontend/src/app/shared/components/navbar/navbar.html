@@ -1,1 +1,39 @@
-<p>navbar works!</p>
+<nav class="navbar glass-panel">
+  <div class="nav-brand">
+    <span class="text-gradient">SpendSmart</span>
+  </div>
+  
+  <div class="nav-links">
+    <!-- Links when logged in -->
+    <ng-container *ngIf="isLoggedIn()">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">Transactions</a>
+      <a routerLink="/premium" routerLinkActive="active" class="nav-premium">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="currentColor">
+          <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.4-6.3-4.8L5.7 21.4l2.3-7.4-6-4.6h7.6L12 2z"/>
+        </svg>
+        Premium
+      </a>
+      <div class="user-menu">
+        <button class="btn-icon" (click)="toggleTheme()">
+          <!-- Hardcoded icon strings for simplicity -->
+          <span *ngIf="!isDarkMode()">🌙</span>
+          <span *ngIf="isDarkMode()">☀️</span>
+        </button>
+        <button class="btn-primary logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </ng-container>
+
+    <!-- Links when not logged in -->
+    <ng-container *ngIf="!isLoggedIn()">
+      <div class="auth-actions">
+        <button class="btn-icon" (click)="toggleTheme()">
+          <span *ngIf="!isDarkMode()">🌙</span>
+          <span *ngIf="isDarkMode()">☀️</span>
+        </button>
+        <a routerLink="/login" routerLinkActive="active" class="nav-item">Login</a>
+        <a routerLink="/register" routerLinkActive="active" class="btn-primary">Sign Up</a>
+      </div>
+    </ng-container>
+  </div>
+</nav>

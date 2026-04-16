@@ -12,14 +12,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppRoutingModule } from './app.routes';
 import { AppComponent } from './app';
 import { LoginComponent } from './features/auth/login/login';
-// import { RegisterComponent } from './features/auth/register/register';
+import { RegisterComponent } from './features/auth/register/register';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password';
+import { DashboardComponent } from './features/dashboard/dashboard';
+import { PremiumComponent } from './features/premium/premium';
+import { UserManagementComponent } from './features/admin/user-management/user-management';
 // import { ProfileComponent } from './features/auth/profile/profile';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [
-    AppComponent, LoginComponent, NavbarComponent//, RegisterComponent, ProfileComponent
+    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, PremiumComponent, UserManagementComponent//, ProfileComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,

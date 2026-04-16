@@ -1,0 +1,38 @@
+<div class="premium-wrapper">
+  <div class="glass-panel pricing-card">
+    <div class="pricing-header">
+      <div class="pro-badge">PRO</div>
+      <h2>SpendSmart Premium</h2>
+      <p>Take full control of your finances without limits.</p>
+    </div>
+
+    <div class="price">
+      <span class="currency">₹</span>
+      <span class="amount">100</span>
+      <span class="period">/ month</span>
+    </div>
+
+    <ul class="features-list">
+      <li>
+        <span class="check">✓</span> Unlimited daily transactions
+      </li>
+      <li>
+        <span class="check">✓</span> Advanced analytics & charts
+      </li>
+      <li>
+        <span class="check">✓</span> Priority customer support
+      </li>
+      <li>
+        <span class="check">✓</span> Custom transaction categories
+      </li>
+    </ul>
+
+    <button class="btn-primary upgrade-btn" (click)="upgrade()" [disabled]="isProcessing">
+      <span *ngIf="isProcessing" class="spinner"></span>
+      <span *ngIf="!isProcessing">Upgrade Now ⚡</span>
+    </button>
+    <p class="secure-checkout">
+      <small>🔒 Secure checkout powered by Razorpay</small>
+    </p>
+  </div>
+</div>
