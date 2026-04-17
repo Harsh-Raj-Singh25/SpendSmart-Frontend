@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -27,7 +27,7 @@ import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,
-    ReactiveFormsModule, AppRoutingModule,
+    ReactiveFormsModule, FormsModule, AppRoutingModule,
     MatInputModule, MatButtonModule, MatCardModule,
     MatToolbarModule, MatSnackBarModule, MatProgressSpinnerModule
   ],

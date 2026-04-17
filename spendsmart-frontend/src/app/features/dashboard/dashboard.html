@@ -27,83 +27,151 @@
     </div>
   </div>
 
-  <!-- Main Content Layout -->
   <div class="dashboard-content">
     
-    <!-- Recent Transactions -->
-    <div class="glass-panel transactions-panel">
-      <div class="panel-header">
-        <h3>Recent Transactions</h3>
-        <button class="btn-primary btn-sm" (click)="loadTransactions()">Refresh</button>
-      </div>
-
-      <div class="tx-controls">
-        <input
-          class="tx-search"
-          placeholder="Search by title/category"
-          [value]="searchTerm"
-          (input)="onSearchChange($any($event.target).value)"
-        />
-        <div class="tx-filters">
-          <button class="btn-chip" [class.active]="selectedType === 'ALL'" (click)="setTypeFilter('ALL')">All</button>
-          <button class="btn-chip" [class.active]="selectedType === 'INCOME'" (click)="setTypeFilter('INCOME')">Income</button>
-          <button class="btn-chip" [class.active]="selectedType === 'EXPENSE'" (click)="setTypeFilter('EXPENSE')">Expense</button>
+    <!-- Left Column: Transactions & Charts -->
+    <div class="main-column">
+      
+      <!-- Analytics Section -->
+      <div class="glass-panel analytics-panel">
+        <div class="panel-header">
+          <h3>Analytics</h3>
+        </div>
+        <div class="charts-container">
+          <div class="chart-box">
+            <h4>Category Breakdown</h4>
+            <div class="canvas-wrapper">
+              <canvas #pieChart></canvas>
+            </div>
+          </div>
+          <div class="chart-box">
+            <h4>Income vs Expense</h4>
+            <div class="canvas-wrapper">
+              <canvas #barChart></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="transaction-list">
-        <div class="transaction-item" *ngFor="let tx of filteredTransactions">
-          <div class="tx-icon" [ngClass]="tx.type.toLowerCase() + '-icon-bg'">
-            <span *ngIf="tx.type === 'INCOME'">💰</span>
-            <span *ngIf="tx.type === 'EXPENSE'">🛒</span>
+      <!-- Transactions Section -->
+      <div class="glass-panel transactions-panel mt-4">
+        <div class="panel-header">
+          <h3>Transactions</h3>
+          <div class="tab-controls">
+            <button class="btn-tab" [class.active]="activeTab === 'EXPENSE'" (click)="activeTab = 'EXPENSE'">Expenses</button>
+            <button class="btn-tab" [class.active]="activeTab === 'INCOME'" (click)="activeTab = 'INCOME'">Incomes</button>
           </div>
-          <div class="tx-details">
-            <h4>{{ tx.category }}</h4>
-            <p>{{ tx.description }}</p>
-          </div>
-          <div class="tx-meta">
-            <h4 [class.text-success]="tx.type === 'INCOME'" [class.text-danger]="tx.type === 'EXPENSE'">
-              {{ tx.type === 'INCOME' ? '+' : '-' }}{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}
-            </h4>
-            <p>{{ tx.date | date:'shortDate' }}</p>
-          </div>
-          <button class="btn-delete" (click)="removeTransaction(tx)" title="Remove transaction">✕</button>
         </div>
-        <p class="empty-state" *ngIf="filteredTransactions.length === 0">No transactions match your filters yet.</p>
+
+        <div class="transaction-list" *ngIf="activeTab === 'EXPENSE'">
+          <div class="transaction-item" *ngFor="let tx of expenseTransactions">
+            <div class="tx-icon expense-icon-bg">🛒</div>
+            <div class="tx-details">
+              <h4>{{ tx.category }}</h4>
+              <p>{{ tx.description }}</p>
+            </div>
+            <div class="tx-meta">
+              <h4 class="text-danger">-{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}</h4>
+              <p>{{ tx.date | date:'shortDate' }}</p>
+            </div>
+            <button class="btn-delete" (click)="removeTransaction(tx)">✕</button>
+          </div>
+          <p class="empty-state" *ngIf="expenseTransactions.length === 0">No expenses recorded yet.</p>
+        </div>
+
+        <div class="transaction-list" *ngIf="activeTab === 'INCOME'">
+          <div class="transaction-item" *ngFor="let tx of incomeTransactions">
+            <div class="tx-icon income-icon-bg">💰</div>
+            <div class="tx-details">
+              <h4>{{ tx.category }}</h4>
+              <p>{{ tx.description }}</p>
+            </div>
+            <div class="tx-meta">
+              <h4 class="text-success">+{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}</h4>
+              <p>{{ tx.date | date:'shortDate' }}</p>
+            </div>
+            <button class="btn-delete" (click)="removeTransaction(tx)">✕</button>
+          </div>
+          <p class="empty-state" *ngIf="incomeTransactions.length === 0">No incomes recorded yet.</p>
+        </div>
       </div>
+      
     </div>
 
-    <!-- Right Sidebar for Features -->
+    <!-- Right Sidebar: Quick Add, Budgets, Freemium -->
     <div class="sidebar-panels">
-      <!-- Add New Quick Action -->
+      
+      <!-- Quick Add -->
       <div class="glass-panel action-panel">
         <h3>Quick Add</h3>
-        <p>Add a new expense or income source instantly.</p>
+        <p>Add a new record instantly.</p>
         <div class="quick-add-grid">
-          <select [value]="quickType" (change)="quickType = $any($event.target).value">
+          <select [value]="quickType" (change)="onQuickTypeChange($any($event.target).value)">
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
           </select>
-          <input type="number" min="0" placeholder="Amount" [value]="quickAmount" (input)="quickAmount = +($any($event.target).value || 0)" />
-          <input type="text" placeholder="Description" [value]="quickDescription" (input)="quickDescription = $any($event.target).value" />
+          <select [(ngModel)]="quickCategoryId">
+            <option *ngFor="let cat of (quickType === 'EXPENSE' ? expenseCategories : incomeCategories)" [value]="cat.categoryId">
+              {{ cat.name }}
+            </option>
+          </select>
+          <input type="number" min="0" placeholder="Amount" [(ngModel)]="quickAmount" />
+          <input type="text" placeholder="Description" [(ngModel)]="quickDescription" />
         </div>
-        <button class="btn-primary full-width mt-4" (click)="addQuickTransaction()">+ Add Transaction</button>
+        <button class="btn-primary full-width mt-4" (click)="addQuickTransaction()">+ Add</button>
       </div>
 
-      <!-- Freemium Mechanics Panel -->
+      <!-- Budget Panel -->
+      <div class="glass-panel budget-panel">
+        <div class="freemium-header">
+          <h3>Budgets</h3>
+          <button class="btn-outline-sm" (click)="showBudgetForm = !showBudgetForm">{{ showBudgetForm ? 'Cancel' : '+ New' }}</button>
+        </div>
+        
+        <div class="budget-form" *ngIf="showBudgetForm">
+          <select [(ngModel)]="newBudgetCategoryId">
+            <option [ngValue]="null">Select Category...</option>
+            <option *ngFor="let cat of expenseCategories" [value]="cat.categoryId">{{ cat.name }}</option>
+          </select>
+          <input type="number" placeholder="Monthly Limit" [(ngModel)]="newBudgetLimit" />
+          <button class="btn-primary btn-sm full-width mt-2" (click)="createBudget()">Save Budget</button>
+        </div>
+
+        <div class="budget-list mt-3">
+          <div class="budget-item" *ngFor="let prog of budgetProgressList">
+            <div class="bt-header">
+              <span class="bt-title">{{ getBudgetCategoryName(prog.budgetId) }}</span>
+              <span class="bt-amt">{{ prog.spentAmount | currency:'INR' }} / {{ prog.limitAmount | currency:'INR' }}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="prog.percentageUsed > 100 ? 100 : prog.percentageUsed"
+                   [ngClass]="{'bg-danger': prog.percentageUsed >= 100, 'bg-warning': prog.percentageUsed >= 85 && prog.percentageUsed < 100, 'bg-success': prog.percentageUsed < 85}">
+              </div>
+            </div>
+            <div class="bt-footer">
+              <span class="bt-pct" [ngClass]="{'text-danger': prog.percentageUsed >= 85}">{{ prog.percentageUsed }}% Used</span>
+              <button class="btn-icon-tiny" (click)="deleteBudget(prog.budgetId)">🗑️</button>
+            </div>
+          </div>
+          <p class="empty-state" *ngIf="budgetProgressList.length === 0 && !showBudgetForm">No active budgets.</p>
+        </div>
+      </div>
+
+      <!-- Freemium Panel -->
       <div class="glass-panel freemium-panel" *ngIf="!isPremium">
         <div class="freemium-header">
           <h3>Daily Limit</h3>
           <span class="badge">Free Tier</span>
         </div>
-        <p class="limit-text">You have used <strong>{{ transactionService.dailyTransactionCount() }}</strong> out of <strong>{{ transactionService.FREE_DAILY_LIMIT }}</strong> free transactions today.</p>
+        <p class="limit-text">You have used <strong>{{ dailyTransactionCount }}</strong> out of <strong>{{ FREE_DAILY_LIMIT }}</strong> free transactions today.</p>
         
         <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="(transactionService.dailyTransactionCount() / transactionService.FREE_DAILY_LIMIT) * 100"></div>
+          <div class="progress-fill" [style.width.%]="(dailyTransactionCount / FREE_DAILY_LIMIT) * 100"></div>
         </div>
 
         <div class="upgrade-promo">
-          <p>Need unlimited transactions?</p>
+          <p>Need unlimited records?</p>
           <a routerLink="/premium" class="btn-upgrade">Upgrade to Premium ⚡</a>
         </div>
       </div>

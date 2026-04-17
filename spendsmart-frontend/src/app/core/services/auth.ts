@@ -157,6 +157,21 @@ export class AuthService {
   }
 
   /**
+   * Google OAuth2 login — sends the Google ID token to the backend
+   * for server-side verification. Backend verifies the token,
+   * finds or creates the user, and returns our own JWT.
+   */
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.GATEWAY_URL}/auth/google`, { idToken }).pipe(
+      tap(response => {
+        this.setAuthState(response);
+        this.router.navigate(['/dashboard']);
+      }),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  /**
    * Get user profile by ID.
    */
   getProfile(userId: number): Observable<User> {

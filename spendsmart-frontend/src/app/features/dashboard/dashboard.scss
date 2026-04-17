@@ -51,11 +51,11 @@
       font-weight: 700;
     }
 
-      .metric-subtitle {
-        margin-top: 0.25rem;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-      }
+    .metric-subtitle {
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
   }
 }
 
@@ -83,52 +83,38 @@
   h3 { font-size: 1.25rem; font-weight: 600; }
 }
 
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-}
+.mt-4 { margin-top: 1.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-2 { margin-top: 0.5rem; }
 
-.transactions-panel {
-  padding: 1.5rem;
-}
-
-.tx-controls {
+/* Tabs */
+.tab-controls {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-
-  .tx-search {
-    flex: 1;
-    min-width: 220px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    border-radius: 10px;
-    padding: 0.6rem 0.8rem;
-  }
-
-  .tx-filters {
-    display: flex;
-    gap: 0.5rem;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  padding: 0.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.btn-tab {
+  background: transparent;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &.active {
+    background: var(--accent-primary);
+    color: #fff;
   }
 }
 
-.btn-chip {
-  border: 1px solid var(--border-color);
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: 999px;
-  padding: 0.4rem 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &.active {
-    color: #fff;
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--accent-primary) 0%, #ec4899 100%);
-  }
+/* Transactions */
+.transactions-panel, .analytics-panel {
+  padding: 1.5rem;
 }
 
 .transaction-list {
@@ -197,20 +183,47 @@
   padding: 1rem;
 }
 
+/* Analytics */
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-box {
+  h4 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+}
+
+.canvas-wrapper {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+
+/* Sidebar */
 .sidebar-panels {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.action-panel, .freemium-panel {
+.action-panel, .freemium-panel, .budget-panel {
   padding: 1.5rem;
 
   h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
   p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
 }
 
-.quick-add-grid {
+.quick-add-grid, .budget-form {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.6rem;
@@ -227,8 +240,48 @@
 }
 
 .full-width { width: 100%; display: block; text-align: center; }
-.mt-4 { margin-top: 1rem; }
 
+/* Budget Panel */
+.btn-outline-sm {
+  border: 1px solid var(--accent-primary);
+  background: transparent;
+  color: var(--accent-primary);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.budget-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
+  border-radius: 10px;
+  margin-bottom: 0.8rem;
+  
+  .bt-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .bt-amt { color: var(--text-secondary); font-size: 0.8rem; }
+  
+  .bt-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+  }
+  
+  .btn-icon-tiny {
+    background: none; border: none; cursor: pointer; opacity: 0.7;
+    &:hover { opacity: 1; }
+  }
+}
+
+/* Freemium */
 .freemium-header {
   display: flex;
   justify-content: space-between;
@@ -261,6 +314,10 @@
     height: 100%;
     background: linear-gradient(90deg, var(--accent-primary) 0%, #ec4899 100%);
     transition: width 0.3s ease;
+    
+    &.bg-success { background: var(--success); }
+    &.bg-warning { background: var(--warning); }
+    &.bg-danger { background: var(--danger); }
   }
 }
 

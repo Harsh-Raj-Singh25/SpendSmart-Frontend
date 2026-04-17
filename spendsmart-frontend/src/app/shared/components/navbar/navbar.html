@@ -4,35 +4,55 @@
   </div>
   
   <div class="nav-links">
-    <!-- Links when logged in -->
-    <ng-container *ngIf="isLoggedIn()">
+    <!-- Links when logged in AND on app pages (not auth pages) -->
+    <ng-container *ngIf="showAppLinks()">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">Transactions</a>
       <a routerLink="/premium" routerLinkActive="active" class="nav-premium">
         <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="currentColor">
           <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.4-6.3-4.8L5.7 21.4l2.3-7.4-6-4.6h7.6L12 2z"/>
         </svg>
         Premium
       </a>
-      <div class="user-menu">
-        <button class="btn-icon" (click)="toggleTheme()">
-          <!-- Hardcoded icon strings for simplicity -->
-          <span *ngIf="!isDarkMode()">🌙</span>
-          <span *ngIf="isDarkMode()">☀️</span>
+
+      <button class="btn-icon" (click)="toggleTheme()">
+        <span *ngIf="!isDarkMode()">🌙</span>
+        <span *ngIf="isDarkMode()">☀️</span>
+      </button>
+
+      <!-- Profile Dropdown -->
+      <div class="profile-dropdown-wrapper">
+        <button class="profile-trigger" (click)="toggleProfileDropdown()">
+          <span class="avatar-circle">{{ getUserInitial() }}</span>
+          <span class="profile-name">{{ getUserName() }}</span>
+          <span class="dropdown-arrow" [class.open]="showProfileDropdown">▾</span>
         </button>
-        <button class="btn-primary logout-btn" (click)="logout()">Logout</button>
+        
+        <div class="profile-dropdown" *ngIf="showProfileDropdown">
+          <div class="dropdown-header">
+            <span class="avatar-circle lg">{{ getUserInitial() }}</span>
+            <div class="dropdown-user-info">
+              <strong>{{ getUserName() }}</strong>
+              <span>{{ getUserEmail() }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" (click)="logout()">
+            <span class="dropdown-icon">🚪</span>
+            Logout
+          </button>
+        </div>
       </div>
     </ng-container>
 
-    <!-- Links when not logged in -->
-    <ng-container *ngIf="!isLoggedIn()">
+    <!-- Links when not logged in OR on auth pages -->
+    <ng-container *ngIf="!showAppLinks()">
       <div class="auth-actions">
         <button class="btn-icon" (click)="toggleTheme()">
           <span *ngIf="!isDarkMode()">🌙</span>
           <span *ngIf="isDarkMode()">☀️</span>
         </button>
-        <a routerLink="/login" routerLinkActive="active" class="nav-item">Login</a>
-        <a routerLink="/register" routerLinkActive="active" class="btn-primary">Sign Up</a>
+        <a routerLink="/login" routerLinkActive="active" class="nav-item" *ngIf="!isLoggedIn()">Login</a>
+        <a routerLink="/register" routerLinkActive="active" class="btn-primary" *ngIf="!isLoggedIn()">Sign Up</a>
       </div>
     </ng-container>
   </div>
