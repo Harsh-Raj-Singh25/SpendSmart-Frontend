@@ -53,6 +53,14 @@ export class NotificationService {
     return this.http.patch<void>(`${this.BASE}/recipient/${recipientId}/read-all`, {});
   }
 
+  acknowledge(notificationId: number): Observable<void> {
+    return this.http.patch<void>(`${this.BASE}/${notificationId}/acknowledge`, {});
+  }
+
+  delete(notificationId: number): Observable<void> {
+    return this.http.delete<void>(`${this.BASE}/${notificationId}`);
+  }
+
   /**
    * Send budget alert notification.
    */

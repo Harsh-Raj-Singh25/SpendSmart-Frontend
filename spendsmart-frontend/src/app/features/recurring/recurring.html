@@ -1,0 +1,86 @@
+<section class="recurring-page">
+  <div class="glass-panel recurring-layout">
+    <div class="left">
+      <h2>Recurring Transactions</h2>
+      <p class="muted">Automate regular expenses and incomes.</p>
+
+      <form [formGroup]="recurringForm" (ngSubmit)="createRecurring()" class="recurring-form">
+        <div class="row two">
+          <div class="field">
+            <label>Title</label>
+            <input type="text" formControlName="title" placeholder="Rent, Salary, SIP" />
+          </div>
+          <div class="field">
+            <label>Amount</label>
+            <input type="number" min="0.01" step="0.01" formControlName="amount" />
+          </div>
+        </div>
+
+        <div class="row three">
+          <div class="field">
+            <label>Type</label>
+            <select formControlName="type">
+              <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select formControlName="categoryId">
+              <option *ngFor="let c of filteredCategories" [value]="c.categoryId">{{ c.name }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Frequency</label>
+            <select formControlName="frequency">
+              <option *ngFor="let f of frequencies" [value]="f">{{ f }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row three">
+          <div class="field">
+            <label>Start Date</label>
+            <input type="date" formControlName="startDate" />
+          </div>
+          <div class="field">
+            <label>End Date (optional)</label>
+            <input type="date" formControlName="endDate" />
+          </div>
+          <div class="field">
+            <label>Payment Method</label>
+            <select formControlName="paymentMethod">
+              <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <textarea rows="3" formControlName="description"></textarea>
+        </div>
+
+        <button class="btn-primary" type="submit">Create Rule</button>
+      </form>
+    </div>
+
+    <div class="right">
+      <h3>Existing Rules</h3>
+      <p class="muted" *ngIf="loading">Loading...</p>
+      <p class="muted" *ngIf="!loading && recurringList.length === 0">No recurring rules yet.</p>
+
+      <div class="rule-card" *ngFor="let r of recurringList">
+        <div class="rule-header">
+          <strong>{{ r.title }}</strong>
+          <span class="badge" [class.off]="!r.isActive">{{ r.isActive ? 'ACTIVE' : 'INACTIVE' }}</span>
+        </div>
+        <p class="meta">{{ r.type }} • {{ getCategoryName(r.categoryId) }} • {{ r.frequency }}</p>
+        <p class="meta">Next due: {{ r.nextDueDate || r.startDate | date:'mediumDate' }}</p>
+        <p class="amt">{{ r.amount | currency:'INR':'symbol':'1.2-2' }}</p>
+        <div class="row-actions">
+          <button class="btn-outline" (click)="deactivate(r)" [disabled]="!r.isActive">Deactivate</button>
+          <button class="btn-danger" (click)="remove(r)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -158,6 +158,65 @@
         </div>
       </div>
 
+      <!-- Upcoming Recurring -->
+      <div class="glass-panel budget-panel">
+        <div class="freemium-header">
+          <h3>Upcoming Recurring</h3>
+          <a routerLink="/recurring" class="btn-outline-sm">Manage</a>
+        </div>
+        <div class="budget-list mt-3">
+          <div class="budget-item" *ngFor="let item of upcomingRecurring">
+            <div class="bt-header">
+              <span class="bt-title">{{ item.title }}</span>
+              <span class="bt-amt">{{ item.amount | currency:'INR' }}</span>
+            </div>
+            <div class="bt-footer">
+              <span class="bt-pct">{{ item.type }} • {{ item.frequency }}</span>
+              <span class="bt-pct">{{ item.nextDueDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <p class="empty-state" *ngIf="upcomingRecurring.length === 0">No recurring dues this month.</p>
+        </div>
+      </div>
+
+      <!-- Advanced Insights -->
+      <div class="glass-panel budget-panel">
+        <div class="freemium-header">
+          <h3>Insights</h3>
+        </div>
+        <div class="budget-list mt-3">
+          <div class="budget-item">
+            <div class="bt-header">
+              <span class="bt-title">Health Score</span>
+              <span class="bt-amt">{{ healthScore !== null ? (healthScore + '/100') : '--' }}</span>
+            </div>
+          </div>
+          <div class="budget-item">
+            <div class="bt-header">
+              <span class="bt-title">Forecast (next month)</span>
+              <span class="bt-amt">{{ spendingForecast !== null ? (spendingForecast | currency:'INR') : '--' }}</span>
+            </div>
+          </div>
+          <div class="budget-item">
+            <div class="bt-header">
+              <span class="bt-title">Cashflow Net</span>
+              <span class="bt-amt">{{ cashflow.net | currency:'INR' }}</span>
+            </div>
+            <div class="bt-footer">
+              <span class="bt-pct">Inflow: {{ cashflow.inflow | currency:'INR' }}</span>
+              <span class="bt-pct">Outflow: {{ cashflow.outflow | currency:'INR' }}</span>
+            </div>
+          </div>
+          <div class="budget-item" *ngFor="let tc of topCategories">
+            <div class="bt-header">
+              <span class="bt-title">{{ tc.name }}</span>
+              <span class="bt-amt">{{ tc.amount | currency:'INR' }}</span>
+            </div>
+          </div>
+          <p class="empty-state" *ngIf="topCategories.length === 0">Top categories unavailable.</p>
+        </div>
+      </div>
+
       <!-- Freemium Panel -->
       <div class="glass-panel freemium-panel" *ngIf="!isPremium">
         <div class="freemium-header">

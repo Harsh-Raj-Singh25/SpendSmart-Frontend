@@ -44,6 +44,18 @@ export class AnalyticsService {
     return this.http.get<number>(`${this.BASE}/user/${userId}/forecast`);
   }
 
+  getTopCategories(userId: number, month: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.BASE}/user/${userId}/top-categories?month=${month}`);
+  }
+
+  getCashflow(userId: number, month: number): Observable<Record<string, number>> {
+    return this.http.get<Record<string, number>>(`${this.BASE}/user/${userId}/cashflow?month=${month}`);
+  }
+
+  getSavingsTrend(userId: number, year: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.BASE}/user/${userId}/trend/savings?year=${year}`);
+  }
+
   /**
    * Get category pie chart data.
    */

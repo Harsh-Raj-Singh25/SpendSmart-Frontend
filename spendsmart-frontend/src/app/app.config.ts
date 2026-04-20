@@ -16,14 +16,16 @@ import { RegisterComponent } from './features/auth/register/register';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { PremiumComponent } from './features/premium/premium';
+import { RecurringComponent } from './features/recurring/recurring';
+import { NotificationsComponent } from './features/notifications/notifications';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
-// import { ProfileComponent } from './features/auth/profile/profile';
+import { ProfileComponent } from './features/auth/profile/profile';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [
-    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, PremiumComponent, UserManagementComponent//, ProfileComponent
+    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, PremiumComponent, UserManagementComponent, ProfileComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,

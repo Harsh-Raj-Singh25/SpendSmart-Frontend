@@ -7,6 +7,11 @@
     <!-- Links when logged in AND on app pages (not auth pages) -->
     <ng-container *ngIf="showAppLinks()">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/notifications" routerLinkActive="active" class="nav-item">
+        Alerts
+        <span *ngIf="notificationService.unreadCount() > 0">({{ notificationService.unreadCount() }})</span>
+      </a>
+      <a routerLink="/recurring" routerLinkActive="active" class="nav-item">Recurring</a>
       <a routerLink="/premium" routerLinkActive="active" class="nav-premium">
         <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="currentColor">
           <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.4-6.3-4.8L5.7 21.4l2.3-7.4-6-4.6h7.6L12 2z"/>
@@ -36,6 +41,10 @@
             </div>
           </div>
           <div class="dropdown-divider"></div>
+          <button class="dropdown-item" (click)="goToProfile()">
+            <span class="dropdown-icon">👤</span>
+            Profile
+          </button>
           <button class="dropdown-item" (click)="logout()">
             <span class="dropdown-icon">🚪</span>
             Logout

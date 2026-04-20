@@ -1,1 +1,56 @@
-<p>profile works!</p>
+<section class="profile-page">
+	<div class="profile-card glass-panel">
+		<h2>Profile Settings</h2>
+		<p class="muted">Manage your account details and display preferences.</p>
+
+		<form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+			<div class="row two">
+				<div class="field">
+					<label>Full Name</label>
+					<input type="text" formControlName="fullName" />
+				</div>
+				<div class="field">
+					<label>Email</label>
+					<input type="email" formControlName="email" />
+				</div>
+			</div>
+
+			<div class="field">
+				<label>Avatar URL</label>
+				<input type="text" formControlName="avatarUrl" placeholder="https://..." />
+			</div>
+
+			<div class="field">
+				<label>Bio</label>
+				<textarea rows="4" formControlName="bio" placeholder="Tell us about yourself"></textarea>
+			</div>
+
+			<div class="row two">
+				<div class="field">
+					<label>Timezone</label>
+					<select formControlName="timezone">
+						<option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
+					</select>
+				</div>
+				<div class="field">
+					<label>Currency</label>
+					<select formControlName="currency">
+						<option *ngFor="let c of currencies" [value]="c">{{ c }}</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button class="btn-primary" type="submit" [disabled]="saving || loading">
+					{{ saving ? 'Saving...' : 'Save Changes' }}
+				</button>
+			</div>
+		</form>
+
+		<div class="danger-zone">
+			<h3>Danger Zone</h3>
+			<p>Deactivate your account and sign out. Data remains preserved on backend.</p>
+			<button type="button" class="btn-danger" (click)="deactivateAccount()">Deactivate Account</button>
+		</div>
+	</div>
+</section>

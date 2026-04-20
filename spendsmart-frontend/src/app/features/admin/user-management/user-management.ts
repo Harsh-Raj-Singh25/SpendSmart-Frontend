@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface AdminUserView {
   userId: number;
@@ -19,11 +21,27 @@ export interface AdminUserView {
 export class UserManagementComponent implements OnInit {
   users: AdminUserView[] = [];
   loading = true;
+  reportingAvailable = false;
+
+  private readonly reportEndpoints = {
+    csv: `${environment.apiUrl}/reports/export/csv`,
+    pdf: `${environment.apiUrl}/reports/export/pdf`
+  };
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
     this.loadUsers();
+    this.detectReportingAvailability();
+  }
+
+  detectReportingAvailability() {
+    // Keep report actions hidden unless concrete export endpoints are reachable.
+    this.http.get(this.reportEndpoints.csv, { observe: 'response', responseType: 'blob' }).pipe(
+      catchError(() => of(null))
+    ).subscribe(resp => {
+      this.reportingAvailable = !!resp;
+    });
   }
 
   loadUsers() {
@@ -34,25 +52,35 @@ export class UserManagementComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load users', err);
-        // Mock data fallback if backend admin endpoint isn't fully seeded yet
-        this.users = [
-          { userId: 1, fullName: 'Admin User', email: 'admin@spendsmart.com', role: 'ADMIN', active: true },
-          { userId: 2, fullName: 'Test User', email: 'user@example.com', role: 'USER', active: true },
-          { userId: 3, fullName: 'Premium Member', email: 'rich@example.com', role: 'PREMIUM', active: true }
-        ];
+        this.users = [];
         this.loading = false;
       }
     });
   }
 
   toggleActiveStatus(user: AdminUserView) {
+    const previous = user.active;
     user.active = !user.active;
-    this.http.put(`${environment.apiUrl}/auth/admin/users/${user.userId}/status`, { active: user.active })
+
+    const endpoint = user.active
+      ? `${environment.apiUrl}/auth/admin/users/${user.userId}/reactivate`
+      : `${environment.apiUrl}/auth/admin/users/${user.userId}/suspend`;
+
+    this.http.put(endpoint, {})
       .subscribe({
         error: () => {
-          // Revert on error if backend call fails
-          user.active = !user.active;
+          user.active = previous;
         }
       });
+  }
+
+  exportCsv() {
+    if (!this.reportingAvailable) return;
+    window.open(this.reportEndpoints.csv, '_blank');
+  }
+
+  exportPdf() {
+    if (!this.reportingAvailable) return;
+    window.open(this.reportEndpoints.pdf, '_blank');
   }
 }

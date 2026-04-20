@@ -5,7 +5,10 @@ import { RegisterComponent } from './features/auth/register/register';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { PremiumComponent } from './features/premium/premium';
+import { RecurringComponent } from './features/recurring/recurring';
+import { NotificationsComponent } from './features/notifications/notifications';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
+import { ProfileComponent } from './features/auth/profile/profile';
 import { AuthGuard } from './core/guards/auth-guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { GuestGuard } from './core/guards/guest.guard';
@@ -16,9 +19,11 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [GuestGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
+  { path: 'recurring', component: RecurringComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'premium', component: PremiumComponent, canActivate: [AuthGuard] },
   { path: 'admin/users', component: UserManagementComponent, canActivate: [AuthGuard, AdminGuard] },
-//   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/login' }
 ];
 

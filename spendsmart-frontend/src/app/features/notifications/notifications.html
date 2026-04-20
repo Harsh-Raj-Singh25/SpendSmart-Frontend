@@ -1,0 +1,30 @@
+<section class="notifications-page">
+  <div class="glass-panel notifications-card">
+    <div class="header">
+      <div>
+        <h2>Notifications</h2>
+        <p class="muted">Track alerts, reminders, and activity updates.</p>
+      </div>
+      <button class="btn-primary" (click)="markAllRead()" [disabled]="notifications.length === 0">Mark All Read</button>
+    </div>
+
+    <div class="list" *ngIf="!loading">
+      <div class="item" *ngFor="let n of notifications" [class.unread]="!n.isRead">
+        <div class="title-row">
+          <strong>{{ n.title }}</strong>
+          <span class="badge" [class.badge-critical]="n.severity === 'CRITICAL'">{{ n.severity }}</span>
+        </div>
+        <p class="message">{{ n.message }}</p>
+        <p class="meta">{{ n.type }} • {{ n.createdAt | date:'medium' }}</p>
+        <div class="actions">
+          <button class="btn-outline" *ngIf="!n.isRead" (click)="markRead(n)">Mark Read</button>
+          <button class="btn-outline" *ngIf="!n.isAcknowledged" (click)="acknowledge(n)">Acknowledge</button>
+          <button class="btn-danger" (click)="remove(n)">Delete</button>
+        </div>
+      </div>
+      <p class="empty" *ngIf="notifications.length === 0">No notifications yet.</p>
+    </div>
+
+    <div class="muted" *ngIf="loading">Loading notifications...</div>
+  </div>
+</section>

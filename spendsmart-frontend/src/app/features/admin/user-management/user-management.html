@@ -43,5 +43,14 @@
     <div class="loading-state" *ngIf="loading">
       <span class="spinner"></span>
     </div>
+
+    <div class="reports-panel" *ngIf="reportingAvailable">
+      <h3>Reports Export</h3>
+      <p>Download platform reports from live export endpoints.</p>
+      <div class="reports-actions">
+        <button class="btn-sm btn-success" (click)="exportCsv()">Export CSV</button>
+        <button class="btn-sm btn-danger" (click)="exportPdf()">Export PDF</button>
+      </div>
+    </div>
   </div>
 </div>

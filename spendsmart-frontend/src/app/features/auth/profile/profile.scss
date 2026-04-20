@@ -1,0 +1,108 @@
+.profile-page {
+	padding: 24px;
+	display: flex;
+	justify-content: center;
+}
+
+.profile-card {
+	width: 100%;
+	max-width: 820px;
+	padding: 24px;
+	border-radius: 14px;
+	background: rgba(18, 28, 54, 0.75);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+h2 {
+	margin: 0 0 4px;
+}
+
+.muted {
+	margin: 0 0 16px;
+	color: #9ca3af;
+}
+
+.profile-form {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.row.two {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+label {
+	font-weight: 600;
+	color: #d1d5db;
+}
+
+input,
+textarea,
+select {
+	width: 100%;
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	border-radius: 10px;
+	padding: 10px 12px;
+	background: rgba(8, 15, 35, 0.85);
+	color: #f9fafb;
+	outline: none;
+}
+
+.actions {
+	margin-top: 6px;
+}
+
+.btn-primary {
+	border: none;
+	border-radius: 10px;
+	padding: 10px 14px;
+	background: linear-gradient(90deg, #6366f1, #8b5cf6);
+	color: #fff;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.danger-zone {
+	margin-top: 22px;
+	padding-top: 18px;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.danger-zone h3 {
+	margin: 0 0 6px;
+	color: #fecaca;
+}
+
+.danger-zone p {
+	margin: 0 0 10px;
+	color: #fca5a5;
+}
+
+.btn-danger {
+	border: none;
+	border-radius: 10px;
+	padding: 10px 14px;
+	background: #dc2626;
+	color: #fff;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+@media (max-width: 768px) {
+	.profile-page {
+		padding: 14px;
+	}
+
+	.row.two {
+		grid-template-columns: 1fr;
+	}
+}

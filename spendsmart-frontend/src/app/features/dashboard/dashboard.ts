@@ -5,8 +5,9 @@ import { CategoryService, Category } from '../../core/services/category.service'
 import { BudgetService, Budget, BudgetProgress } from '../../core/services/budget.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { RecurringService, RecurringTransaction } from '../../core/services/recurring.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { forkJoin, switchMap, of, catchError } from 'rxjs';
+import { forkJoin, of, catchError } from 'rxjs';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -38,6 +39,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   
   budgets: Budget[] = [];
   budgetProgressList: BudgetProgress[] = [];
+  upcomingRecurring: RecurringTransaction[] = [];
+  healthScore: number | null = null;
+  spendingForecast: number | null = null;
+  cashflow: { inflow: number; outflow: number; net: number } = { inflow: 0, outflow: 0, net: 0 };
+  topCategories: Array<{ name: string; amount: number }> = [];
 
   quickAmount = 0;
   quickDescription = '';
@@ -61,6 +67,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     private budgetService: BudgetService,
     private analyticsService: AnalyticsService,
     private notificationService: NotificationService,
+    private recurringService: RecurringService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -88,6 +95,65 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.loadCategories();
     this.loadTransactions();
     this.loadBudgets();
+    this.loadUpcomingRecurring();
+    this.loadAdvancedAnalytics();
+  }
+
+  loadAdvancedAnalytics() {
+    if (!this.userId) return;
+
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    this.analyticsService.getHealthScore(this.userId)
+      .pipe(catchError(() => of(null)))
+      .subscribe(score => {
+        this.healthScore = score;
+      });
+
+    this.analyticsService.getSpendingForecast(this.userId)
+      .pipe(catchError(() => of(null)))
+      .subscribe(forecast => {
+        this.spendingForecast = forecast;
+      });
+
+    this.analyticsService.getCashflow(this.userId, month)
+      .pipe(catchError(() => of({} as Record<string, number>)))
+      .subscribe((data: any) => {
+        this.cashflow = {
+          inflow: Number(data?.inflow ?? data?.income ?? 0),
+          outflow: Number(data?.outflow ?? data?.expense ?? 0),
+          net: Number(data?.net ?? 0)
+        };
+      });
+
+    this.analyticsService.getTopCategories(this.userId, month)
+      .pipe(catchError(() => of([])))
+      .subscribe((items: any[]) => {
+        this.topCategories = (items || []).slice(0, 5).map((entry: any) => {
+          if (entry?.key !== undefined && entry?.value !== undefined) {
+            return { name: String(entry.key), amount: Number(entry.value) };
+          }
+          if (Array.isArray(entry) && entry.length >= 2) {
+            return { name: String(entry[0]), amount: Number(entry[1]) };
+          }
+          return { name: 'Category', amount: Number(entry?.amount || 0) };
+        });
+      });
+  }
+
+  loadUpcomingRecurring() {
+    if (!this.userId) return;
+    this.recurringService.getUpcoming(this.userId)
+      .pipe(catchError(() => of([])))
+      .subscribe(list => {
+        this.upcomingRecurring = (list || []).slice(0, 5);
+      });
+  }
+
+  getUpcomingCategoryName(categoryId: number): string {
+    return this.getCategoryName(categoryId);
   }
 
   loadCategories() {
@@ -107,6 +173,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             this.quickCategoryId = this.expenseCategories[0].categoryId;
           }
         }
+      },
+      error: () => {
+        this.categories = [];
+        this.expenseCategories = [];
+        this.incomeCategories = [];
       }
     });
   }
@@ -124,10 +195,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
               next: (progress) => {
                 this.budgetProgressList.push(progress);
                 this.checkBudgetAlert(b, progress);
+              },
+              error: () => {
+                // Skip failed progress calls for individual budgets to keep dashboard usable.
               }
             });
           }
         });
+      },
+      error: () => {
+        this.budgets = [];
+        this.budgetProgressList = [];
       }
     });
   }
@@ -154,8 +232,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (!this.userId) return;
 
     forkJoin([
-      this.transactionService.getExpensesByUser(this.userId),
-      this.transactionService.getIncomesByUser(this.userId)
+      this.transactionService.getExpensesByUser(this.userId).pipe(catchError(() => of([]))),
+      this.transactionService.getIncomesByUser(this.userId).pipe(catchError(() => of([])))
     ]).subscribe({
       next: ([expenses, incomes]) => {
         this.expenseTransactions = (expenses || []).map((e: any) => ({
@@ -181,6 +259,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.calculateSummary();
         this.updateDailyCount();
         this.renderCharts();
+      },
+      error: () => {
+        this.expenseTransactions = [];
+        this.incomeTransactions = [];
+        this.calculateSummary();
       }
     });
   }
@@ -332,80 +415,81 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const now = new Date();
     
     // Category Breakdown (Pie)
-    this.analyticsService.getCategoryBreakdown(this.userId, now.getFullYear(), now.getMonth() + 1).subscribe(data => {
-      if (this.pieChartInstance) this.pieChartInstance.destroy();
-      
-      const labels = Object.keys(data).map(id => this.getCategoryName(+id));
-      const values = Object.values(data);
-      
-      if (this.pieChartRef?.nativeElement) {
-        this.pieChartInstance = new Chart(this.pieChartRef.nativeElement, {
-          type: 'pie',
-          data: {
-            labels: labels.length ? labels : ['No Data'],
-            datasets: [{
-              data: values.length ? values : [1],
-              backgroundColor: ['#4f46e5', '#34d399', '#f59e0b', '#ef4444', '#8b5cf6', '#eab308'],
-              borderWidth: 0
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'right', labels: { color: '#cbd5e1' } }
+    this.analyticsService.getCategoryBreakdown(this.userId, now.getFullYear(), now.getMonth() + 1)
+      .pipe(catchError(() => of({})))
+      .subscribe(data => {
+        if (this.pieChartInstance) this.pieChartInstance.destroy();
+        
+        const labels = Object.keys(data).map(id => this.getCategoryName(+id));
+        const values = Object.values(data);
+        
+        if (this.pieChartRef?.nativeElement) {
+          this.pieChartInstance = new Chart(this.pieChartRef.nativeElement, {
+            type: 'pie',
+            data: {
+              labels: labels.length ? labels : ['No Data'],
+              datasets: [{
+                data: values.length ? values : [1],
+                backgroundColor: ['#4f46e5', '#34d399', '#f59e0b', '#ef4444', '#8b5cf6', '#eab308'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'right', labels: { color: '#cbd5e1' } }
+              }
             }
-          }
-        });
-      }
-    });
+          });
+        }
+      });
     
     // Income vs Expense Trend (Bar)
-    this.analyticsService.getIncomeVsExpenseTrend(this.userId, now.getFullYear()).subscribe(data => {
-      if (this.barChartInstance) this.barChartInstance.destroy();
-      
-      // Usually returns list of { month, income, expense }
-      const labels = [1,2,3,4,5,6].map(m => `Month ${m}`); 
-      // If the backend actually returns actual month strings, use data.map(d => it.month)
-      // I'll use raw data mapping
-      const chartLabels = data?.length ? data.map(d => `Month ${d.month || '?'}`) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-      const incomeData = data?.length ? data.map(d => d.income) : [0,0,0,0,0,0];
-      const expenseData = data?.length ? data.map(d => d.expense) : [0,0,0,0,0,0];
+    this.analyticsService.getIncomeVsExpenseTrend(this.userId, now.getFullYear())
+      .pipe(catchError(() => of([])))
+      .subscribe(data => {
+        if (this.barChartInstance) this.barChartInstance.destroy();
+        
+        // If backend returns month labels, use them; otherwise fallback labels keep chart stable.
+        const chartLabels = data?.length ? data.map(d => `Month ${d.month || '?'}`) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const incomeData = data?.length ? data.map(d => d.income) : [0,0,0,0,0,0];
+        const expenseData = data?.length ? data.map(d => d.expense) : [0,0,0,0,0,0];
 
-      if (this.barChartRef?.nativeElement) {
-        this.barChartInstance = new Chart(this.barChartRef.nativeElement, {
-          type: 'bar',
-          data: {
-            labels: chartLabels,
-            datasets: [
-              {
-                label: 'Income',
-                data: incomeData,
-                backgroundColor: '#34d399',
-                borderRadius: 4
-              },
-              {
-                label: 'Expense',
-                data: expenseData,
-                backgroundColor: '#ef4444',
-                borderRadius: 4
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-              y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        if (this.barChartRef?.nativeElement) {
+          this.barChartInstance = new Chart(this.barChartRef.nativeElement, {
+            type: 'bar',
+            data: {
+              labels: chartLabels,
+              datasets: [
+                {
+                  label: 'Income',
+                  data: incomeData,
+                  backgroundColor: '#34d399',
+                  borderRadius: 4
+                },
+                {
+                  label: 'Expense',
+                  data: expenseData,
+                  backgroundColor: '#ef4444',
+                  borderRadius: 4
+                }
+              ]
             },
-            plugins: {
-              legend: { labels: { color: '#cbd5e1' } }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+              },
+              plugins: {
+                legend: { labels: { color: '#cbd5e1' } }
+              }
             }
-          }
-        });
-      }
-    });
+          });
+        }
+      });
   }
   
   getBudgetCategoryName(budgetId: number): string {

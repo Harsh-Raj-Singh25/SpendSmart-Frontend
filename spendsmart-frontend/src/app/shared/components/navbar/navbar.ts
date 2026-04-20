@@ -2,6 +2,7 @@ import { Component, computed } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { ThemeService } from '../../../core/services/theme.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -17,6 +18,7 @@ export class NavbarComponent {
 
   constructor(
     public authService: AuthService,
+    public notificationService: NotificationService,
     public themeService: ThemeService,
     private router: Router
   ) {
@@ -27,6 +29,11 @@ export class NavbarComponent {
       this.currentRoute = event.urlAfterRedirects || event.url;
       this.showProfileDropdown = false; // close dropdown on route change
     });
+
+    const user = this.authService.getCurrentUser();
+    if (user?.userId) {
+      this.notificationService.loadNotifications(user.userId);
+    }
   }
 
   /**
@@ -54,6 +61,11 @@ export class NavbarComponent {
 
   toggleProfileDropdown() {
     this.showProfileDropdown = !this.showProfileDropdown;
+  }
+
+  goToProfile() {
+    this.showProfileDropdown = false;
+    this.router.navigate(['/profile']);
   }
 
   getUserName(): string {
