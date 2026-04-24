@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -13,10 +13,11 @@ import { AuthService } from '../services/auth';
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private injector: Injector, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.authService.getToken();
+    const authService = this.injector.get(AuthService);
+    const token = authService.getToken();
 
     if (token) {
       req = req.clone({
@@ -29,7 +30,7 @@ export class JwtInterceptor implements HttpInterceptor {
         // 401 Unauthorized = token missing or invalid
         // 403 Forbidden = token valid but user lacks permission
         if (err.status === 401 || err.status === 403) {
-          this.authService.logout();
+          authService.logout();
           this.router.navigate(['/login']);
         }
         return throwError(() => err);

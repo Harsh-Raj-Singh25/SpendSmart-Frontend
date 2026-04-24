@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,7 +22,8 @@ export class ForgotPasswordComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     this.emailForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
@@ -45,6 +46,7 @@ export class ForgotPasswordComponent {
         this.step = 'OTP';
         this.emailSentTo = email;
         this.snackBar.open('OTP sent to your email', 'Close', { duration: 3000 });
+        this.cdr.detectChanges(); // Force view update safely
       },
       error: (err) => {
         this.loading = false;
@@ -55,6 +57,7 @@ export class ForgotPasswordComponent {
           errorMessage = err.error.message;
         }
         this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
+        this.cdr.detectChanges(); // Force view update safely
       }
     });
   }
@@ -63,21 +66,29 @@ export class ForgotPasswordComponent {
     if (this.otpForm.invalid) return;
     this.loading = true;
     
-    const payload = {
+    const data = {
       email: this.emailSentTo,
       otp: this.otpForm.value.otp,
       newPassword: this.otpForm.value.newPassword
     };
 
-    this.authService.resetPassword(payload).subscribe({
+    this.authService.resetPassword(data).subscribe({
       next: () => {
         this.loading = false;
-        this.snackBar.open('Password reset successful', 'Close', { duration: 3000 });
+        this.snackBar.open('Password reset successfully. Please login.', 'Close', { duration: 3000 });
+        this.cdr.detectChanges(); // Force view update safely
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
-        this.snackBar.open(err.error?.message || 'Failed to reset password', 'Close', { duration: 3000 });
+        let errorMessage = 'Failed to reset password';
+        if (err.error && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
+        this.cdr.detectChanges(); // Force view update safely
       }
     });
   }
