@@ -13,17 +13,20 @@
     "test:e2e:report": "npx playwright show-report"
   },
   "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "packageManager": "npm@11.11.0",
   "dependencies": {
-    "@angular/animations": "^21.2.9",
+    "@angular/animations": "21.2.7",
     "@angular/cdk": "^21.2.5",
-    "@angular/common": "^21.2.0",
-    "@angular/compiler": "^21.2.0",
-    "@angular/core": "^21.2.0",
-    "@angular/forms": "^21.2.0",
+    "@angular/common": "21.2.7",
+    "@angular/compiler": "21.2.7",
+    "@angular/core": "21.2.7",
+    "@angular/forms": "21.2.7",
     "@angular/material": "^21.2.5",
-    "@angular/platform-browser": "^21.2.0",
-    "@angular/router": "^21.2.0",
+    "@angular/platform-browser": "21.2.7",
+    "@angular/router": "21.2.7",
     "chart.js": "^4.5.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -31,7 +34,7 @@
   "devDependencies": {
     "@angular/build": "^21.2.5",
     "@angular/cli": "^21.2.5",
-    "@angular/compiler-cli": "^21.2.0",
+    "@angular/compiler-cli": "21.2.7",
     "@playwright/test": "^1.59.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
