@@ -60,8 +60,24 @@
           <span *ngIf="!isDarkMode()">🌙</span>
           <span *ngIf="isDarkMode()">☀️</span>
         </button>
-        <a routerLink="/login" routerLinkActive="active" class="nav-item" *ngIf="!isLoggedIn()">Login</a>
-        <a routerLink="/register" routerLinkActive="active" class="btn-primary" *ngIf="!isLoggedIn()">Sign Up</a>
+        <div class="auth-toggle" *ngIf="!isLoggedIn()">
+          <a
+            routerLink="/login"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="auth-toggle-link"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/register"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="auth-toggle-link"
+          >
+            Sign Up
+          </a>
+        </div>
       </div>
     </ng-container>
   </div>

@@ -57,6 +57,35 @@
   gap: 1rem;
 }
 
+.auth-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-secondary) 70%, transparent);
+}
+
+.auth-toggle-link {
+  text-decoration: none;
+  color: var(--text-primary);
+  padding: 0.45rem 0.95rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--accent-primary);
+  }
+
+  &.active {
+    background-color: var(--accent-primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.28);
+  }
+}
+
 .btn-icon {
   background: transparent;
   border: 1px solid var(--border-color);
