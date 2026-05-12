@@ -1,16 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
-export interface AdminUserView {
-  userId: number;
-  fullName: string;
-  email: string;
-  role: string;
-  active: boolean;
-}
+import { AdminCreateUserRequest, AdminService, AdminUserView } from '../../../core/services/admin.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-user-management',
@@ -22,13 +15,23 @@ export class UserManagementComponent implements OnInit {
   users: AdminUserView[] = [];
   loading = true;
   reportingAvailable = false;
+  submitting = false;
+
+  newUser: AdminCreateUserRequest = {
+    fullName: '',
+    email: '',
+    password: ''
+  };
 
   private readonly reportEndpoints = {
     csv: `${environment.apiUrl}/reports/export/csv`,
     pdf: `${environment.apiUrl}/reports/export/pdf`
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private adminService: AdminService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -45,7 +48,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadUsers() {
-    this.http.get<AdminUserView[]>(`${environment.apiUrl}/auth/admin/users`).subscribe({
+    this.adminService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
         this.loading = false;
@@ -63,15 +66,56 @@ export class UserManagementComponent implements OnInit {
     user.active = !user.active;
 
     const endpoint = user.active
-      ? `${environment.apiUrl}/auth/admin/users/${user.userId}/reactivate`
-      : `${environment.apiUrl}/auth/admin/users/${user.userId}/suspend`;
+      ? this.adminService.reactivateUser(user.userId)
+      : this.adminService.suspendUser(user.userId);
 
-    this.http.put(endpoint, {})
-      .subscribe({
-        error: () => {
-          user.active = previous;
-        }
-      });
+    endpoint.subscribe({
+      error: () => {
+        user.active = previous;
+      }
+    });
+  }
+
+  togglePremium(user: AdminUserView) {
+    const isPremium = (user.subscriptionType || '').toUpperCase() === 'PREMIUM';
+    const request$ = isPremium
+      ? this.adminService.revokePremium(user.userId)
+      : this.adminService.grantPremium(user.userId);
+
+    request$.subscribe({
+      next: () => {
+        user.subscriptionType = isPremium ? 'FREE' : 'PREMIUM';
+      }
+    });
+  }
+
+  deleteUser(user: AdminUserView) {
+    const confirmed = window.confirm(`Delete user ${user.email}? This cannot be undone.`);
+    if (!confirmed) return;
+
+    this.adminService.deleteUser(user.userId).subscribe({
+      next: () => {
+        this.users = this.users.filter(u => u.userId !== user.userId);
+      }
+    });
+  }
+
+  createUser() {
+    if (!this.newUser.fullName.trim() || !this.newUser.email.trim() || !this.newUser.password.trim()) {
+      return;
+    }
+
+    this.submitting = true;
+    this.adminService.createUser(this.newUser).subscribe({
+      next: (user) => {
+        this.users = [user, ...this.users];
+        this.newUser = { fullName: '', email: '', password: '' };
+        this.submitting = false;
+      },
+      error: () => {
+        this.submitting = false;
+      }
+    });
   }
 
   exportCsv() {

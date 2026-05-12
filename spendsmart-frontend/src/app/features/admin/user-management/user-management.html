@@ -5,6 +5,18 @@
       <p>Manage access and view registered members on SpendSmart.</p>
     </div>
 
+    <div class="create-user-panel">
+      <h3>Create User</h3>
+      <div class="create-grid">
+        <input type="text" placeholder="Full name" [(ngModel)]="newUser.fullName" />
+        <input type="email" placeholder="Email" [(ngModel)]="newUser.email" />
+        <input type="password" placeholder="Temp password" [(ngModel)]="newUser.password" />
+        <button class="btn-sm btn-success" [disabled]="submitting" (click)="createUser()">
+          {{ submitting ? 'Creating...' : 'Create' }}
+        </button>
+      </div>
+    </div>
+
     <div class="table-container" *ngIf="!loading">
       <table class="glass-table">
         <thead>
@@ -13,6 +25,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Plan</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -26,14 +39,25 @@
               <span class="role-badge" [ngClass]="user.role.toLowerCase()">{{ user.role }}</span>
             </td>
             <td>
+              <span class="plan-badge" [ngClass]="(user.subscriptionType || '').toLowerCase()">
+                {{ user.subscriptionType || 'FREE' }}
+              </span>
+            </td>
+            <td>
               <span class="status-badge" [ngClass]="user.active ? 'active' : 'inactive'">
                 {{ user.active ? 'Active' : 'Disabled' }}
               </span>
             </td>
             <td>
-              <button class="btn-sm" [class.btn-danger]="user.active" [class.btn-success]="!user.active" (click)="toggleActiveStatus(user)">
-                {{ user.active ? 'Disable' : 'Enable' }}
-              </button>
+              <div class="action-group">
+                <button class="btn-sm" [class.btn-danger]="user.active" [class.btn-success]="!user.active" (click)="toggleActiveStatus(user)">
+                  {{ user.active ? 'Disable' : 'Enable' }}
+                </button>
+                <button class="btn-sm btn-premium" (click)="togglePremium(user)">
+                  {{ (user.subscriptionType || 'FREE') === 'PREMIUM' ? 'Revoke Premium' : 'Grant Premium' }}
+                </button>
+                <button class="btn-sm btn-danger" (click)="deleteUser(user)">Delete</button>
+              </div>
             </td>
           </tr>
         </tbody>

@@ -46,7 +46,14 @@ export default defineConfig({
   // ── Reporter ───────────────────────────────────────────────
   // 'html' generates a beautiful interactive HTML report.
   // After running tests, open it with: npx playwright show-report
-  reporter: 'html',
+  // 2. Update the reporter section
+  reporter: [
+    ['html'], // keeps your beautiful HTML report
+    ['@bgotink/playwright-coverage', {
+      resultDir: './coverage-results',
+      reports: [['html'], ['text-summary']],
+    }],
+  ],
 
   // ── Shared Settings for ALL Projects ───────────────────────
   // These settings apply to every test unless overridden per-project.

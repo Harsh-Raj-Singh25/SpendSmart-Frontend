@@ -19,13 +19,17 @@ import { PremiumComponent } from './features/premium/premium';
 import { RecurringComponent } from './features/recurring/recurring';
 import { NotificationsComponent } from './features/notifications/notifications';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
+import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard';
+import { AdminExpensesComponent } from './features/admin/admin-expenses/admin-expenses';
+import { AdminIncomesComponent } from './features/admin/admin-incomes/admin-incomes';
+import { AdminBudgetsComponent } from './features/admin/admin-budgets/admin-budgets';
 import { ProfileComponent } from './features/auth/profile/profile';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [
-    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, PremiumComponent, UserManagementComponent, ProfileComponent
+    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,

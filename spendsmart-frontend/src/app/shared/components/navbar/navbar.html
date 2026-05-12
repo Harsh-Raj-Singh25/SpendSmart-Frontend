@@ -19,6 +19,14 @@
         Premium
       </a>
 
+      <ng-container *ngIf="isAdmin()">
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item nav-admin">Admin Dashboard</a>
+        <a routerLink="/admin/users" routerLinkActive="active" class="nav-item nav-admin">Users</a>
+        <a routerLink="/admin/expenses" routerLinkActive="active" class="nav-item nav-admin">Expenses</a>
+        <a routerLink="/admin/incomes" routerLinkActive="active" class="nav-item nav-admin">Incomes</a>
+        <a routerLink="/admin/budgets" routerLinkActive="active" class="nav-item nav-admin">Budgets</a>
+      </ng-container>
+
       <button class="btn-icon" (click)="toggleTheme()">
         <span *ngIf="!isDarkMode()">🌙</span>
         <span *ngIf="isDarkMode()">☀️</span>
@@ -40,6 +48,7 @@
               <span>{{ getUserEmail() }}</span>
             </div>
           </div>
+          <div class="dropdown-role" *ngIf="isAdmin()">ADMIN</div>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item" (click)="goToProfile()">
             <span class="dropdown-icon">👤</span>

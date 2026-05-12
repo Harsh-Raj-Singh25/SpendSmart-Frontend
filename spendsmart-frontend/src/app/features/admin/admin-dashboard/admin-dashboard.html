@@ -1,0 +1,63 @@
+<div class="admin-dashboard">
+  <div class="glass-panel header-card">
+    <div>
+      <h2>Admin Control Center</h2>
+      <p>Monitor user activity and financial coverage across the platform.</p>
+    </div>
+    <div class="quick-links">
+      <a routerLink="/admin/users" class="btn-link">Users</a>
+      <a routerLink="/admin/expenses" class="btn-link">Expenses</a>
+      <a routerLink="/admin/incomes" class="btn-link">Incomes</a>
+      <a routerLink="/admin/budgets" class="btn-link">Budgets</a>
+    </div>
+  </div>
+
+  <div class="kpi-grid" *ngIf="!loading">
+    <div class="glass-panel kpi-card" *ngFor="let kpi of kpis">
+      <span class="kpi-label">{{ kpi.label }}</span>
+      <span class="kpi-value">{{ kpi.value }}</span>
+      <span class="kpi-helper" *ngIf="kpi.helper">{{ kpi.helper }}</span>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <span class="spinner"></span>
+    <p>Loading admin overview...</p>
+  </div>
+
+  <div class="lists-grid" *ngIf="!loading">
+    <div class="glass-panel list-card">
+      <div class="list-header">
+        <h3>Latest Expenses</h3>
+        <a routerLink="/admin/expenses" class="btn-link subtle">View all</a>
+      </div>
+      <div class="list-body">
+        <div class="list-row" *ngFor="let item of expenses | slice:0:5">
+          <div>
+            <span class="row-title">Expense #{{ item.expenseId }}</span>
+            <span class="row-sub">User {{ item.userId }} • {{ item.date | date:'mediumDate' }}</span>
+          </div>
+          <span class="row-amount negative">-{{ item.amount | number:'1.2-2' }}</span>
+        </div>
+        <p class="empty-state" *ngIf="expenses.length === 0">No expenses yet.</p>
+      </div>
+    </div>
+
+    <div class="glass-panel list-card">
+      <div class="list-header">
+        <h3>Latest Incomes</h3>
+        <a routerLink="/admin/incomes" class="btn-link subtle">View all</a>
+      </div>
+      <div class="list-body">
+        <div class="list-row" *ngFor="let item of incomes | slice:0:5">
+          <div>
+            <span class="row-title">Income #{{ item.incomeId }}</span>
+            <span class="row-sub">User {{ item.userId }} • {{ item.date | date:'mediumDate' }}</span>
+          </div>
+          <span class="row-amount positive">+{{ item.amount | number:'1.2-2' }}</span>
+        </div>
+        <p class="empty-state" *ngIf="incomes.length === 0">No incomes yet.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,8 +5,8 @@
 .notifications-card {
   padding: 20px;
   border-radius: 14px;
-  background: rgba(18, 28, 54, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
 .header {
@@ -33,10 +33,10 @@ h2 {
 }
 
 .item {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--overlay-rgb), 0.12);
   border-radius: 12px;
   padding: 12px;
-  background: rgba(10, 18, 40, 0.7);
+  background: var(--bg-card);
 }
 
 .item.unread {
@@ -88,14 +88,14 @@ h2 {
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: var(--accent-gradient);
   color: white;
 }
 
 .btn-outline {
   background: transparent;
-  color: #e5e7eb;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--text-secondary);
+  border: 1px solid rgba(var(--overlay-rgb), 0.25);
 }
 
 .btn-danger {

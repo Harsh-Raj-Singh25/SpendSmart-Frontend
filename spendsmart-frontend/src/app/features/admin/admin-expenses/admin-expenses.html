@@ -1,0 +1,81 @@
+<div class="admin-list">
+  <div class="glass-panel header-panel">
+    <div>
+      <h2>All Expenses</h2>
+      <p>Create, update, and remove expenses across the platform.</p>
+    </div>
+  </div>
+
+  <div class="glass-panel form-panel">
+    <h3>{{ editingExpenseId ? 'Edit Expense' : 'Create Expense' }}</h3>
+    <div class="form-grid">
+      <input type="number" placeholder="User ID" [(ngModel)]="form.userId" />
+      <input type="number" placeholder="Category ID" [(ngModel)]="form.categoryId" />
+      <input type="text" placeholder="Title" [(ngModel)]="form.title" />
+      <input type="number" step="0.01" placeholder="Amount" [(ngModel)]="form.amount" />
+      <input type="date" [(ngModel)]="form.date" />
+
+      <select [(ngModel)]="form.type">
+        <option *ngFor="let type of expenseTypes" [ngValue]="type">{{ type }}</option>
+      </select>
+
+      <select [(ngModel)]="form.paymentMethod">
+        <option *ngFor="let method of paymentMethods" [ngValue]="method">{{ method }}</option>
+      </select>
+
+      <label class="check-row">
+        <input type="checkbox" [(ngModel)]="form.isRecurring" />
+        Recurring
+      </label>
+      <textarea rows="2" placeholder="Notes (optional)" [(ngModel)]="form.notes"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm btn-success" [disabled]="saving" (click)="submit()">
+        {{ saving ? 'Saving...' : (editingExpenseId ? 'Update Expense' : 'Create Expense') }}
+      </button>
+      <button *ngIf="editingExpenseId" class="btn-sm" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="glass-panel table-panel" *ngIf="!loading">
+    <table class="glass-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Payment</th>
+          <th>Title</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of expenses">
+          <td>#{{ item.expenseId }}</td>
+          <td>{{ item.userId }}</td>
+          <td>{{ item.categoryId }}</td>
+          <td class="negative">-{{ item.amount | number:'1.2-2' }}</td>
+          <td>{{ item.date | date:'shortDate' }}</td>
+          <td>{{ item.type }}</td>
+          <td>{{ item.paymentMethod }}</td>
+          <td>{{ item.title }}</td>
+          <td>
+            <div class="action-group">
+              <button class="btn-sm" (click)="startEdit(item)">Edit</button>
+              <button class="btn-sm btn-danger" (click)="delete(item)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty-state" *ngIf="expenses.length === 0">No expenses found.</p>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <span class="spinner"></span>
+    <p>Loading expenses...</p>
+  </div>
+</div>

@@ -9,8 +9,8 @@
 	max-width: 820px;
 	padding: 24px;
 	border-radius: 14px;
-	background: rgba(18, 28, 54, 0.75);
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: var(--bg-card);
+	border: 1px solid var(--border-color);
 }
 
 h2 {
@@ -42,19 +42,43 @@ h2 {
 
 label {
 	font-weight: 600;
-	color: #d1d5db;
+	color: var(--text-secondary);
 }
 
 input,
 textarea,
 select {
 	width: 100%;
-	border: 1px solid rgba(255, 255, 255, 0.16);
+	border: 1px solid var(--border-color);
 	border-radius: 10px;
 	padding: 10px 12px;
-	background: rgba(8, 15, 35, 0.85);
-	color: #f9fafb;
+	background: var(--bg-card);
+	color: var(--text-primary);
 	outline: none;
+	font-family: 'Outfit', sans-serif;
+	transition: all 0.2s ease;
+}
+
+select {
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.5rem center;
+	background-size: 1.5em 1.5em;
+	padding-right: 2.5rem;
+	
+	&:hover {
+		border-color: var(--accent-primary);
+	}
+	
+	&:focus {
+		outline: none;
+		border-color: var(--accent-primary);
+		box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+	}
 }
 
 .actions {
@@ -65,7 +89,7 @@ select {
 	border: none;
 	border-radius: 10px;
 	padding: 10px 14px;
-	background: linear-gradient(90deg, #6366f1, #8b5cf6);
+	background: var(--accent-gradient);
 	color: #fff;
 	font-weight: 600;
 	cursor: pointer;
@@ -74,7 +98,7 @@ select {
 .danger-zone {
 	margin-top: 22px;
 	padding-top: 18px;
-	border-top: 1px solid rgba(255, 255, 255, 0.12);
+	border-top: 1px solid var(--border-color);
 }
 
 .danger-zone h3 {

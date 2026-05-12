@@ -16,6 +16,14 @@
   --border-color: rgba(203, 213, 225, 0.5);
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  /* Helper RGB values and semantic overlays (use in components via rgba(var(--overlay-rgb), a)) */
+  --color-white-rgb: 255,255,255;
+  --color-black-rgb: 15,23,42;
+  --overlay-rgb: var(--color-black-rgb);
+  --glass-overlay: rgba(var(--overlay-rgb), 0.04);
+  --glass-overlay-strong: rgba(var(--overlay-rgb), 0.08);
+  --spinner-border-rgb: var(--color-black-rgb);
+  --accent-gradient: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
 }
 
 :root[theme="dark"] {
@@ -33,6 +41,13 @@
   --border-color: rgba(51, 65, 85, 0.5);
   --glass-border: rgba(255, 255, 255, 0.05);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  /* Theme-specific RGB helpers for dark theme */
+  --color-white-rgb: 255,255,255;
+  --color-black-rgb: 15,23,42;
+  --overlay-rgb: var(--color-white-rgb);
+  --glass-overlay: rgba(var(--overlay-rgb), 0.05);
+  --glass-overlay-strong: rgba(var(--overlay-rgb), 0.12);
+  --spinner-border-rgb: var(--color-white-rgb);
 }
 
 * {
@@ -98,4 +113,22 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+
+/* Select and Option Styling for Theme Support */
+select {
+  accent-color: var(--accent-primary);
+}
+
+/* Webkit-based browsers (Chrome, Safari, Edge) */
+select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 0.5rem;
+}
+
+select option:checked {
+  background: linear-gradient(var(--accent-primary), var(--accent-primary));
+  background-color: var(--accent-primary);
+  color: white;
 }

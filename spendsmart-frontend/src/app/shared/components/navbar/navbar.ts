@@ -51,6 +51,11 @@ export class NavbarComponent {
     return this.isLoggedIn() && !this.isAuthPage();
   }
 
+  isAdmin(): boolean {
+    const user = this.authService.getCurrentUser();
+    return (user?.role || '').toUpperCase() === 'ADMIN';
+  }
+
   isDarkMode() {
     return this.themeService.isDarkMode();
   }

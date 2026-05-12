@@ -77,7 +77,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.GATEWAY_URL}/auth/login`, request).pipe(
       tap(response => {
         this.setAuthState(response);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([this.getLandingRoute(response)]);
       }),
       catchError(err => throwError(() => err))
     );
@@ -165,10 +165,14 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.GATEWAY_URL}/auth/google`, { idToken }).pipe(
       tap(response => {
         this.setAuthState(response);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([this.getLandingRoute(response)]);
       }),
       catchError(err => throwError(() => err))
     );
+  }
+
+  private getLandingRoute(user: Pick<AuthResponse, 'role'>): string {
+    return user.role?.toUpperCase() === 'ADMIN' ? '/admin/dashboard' : '/dashboard';
   }
 
   /**
