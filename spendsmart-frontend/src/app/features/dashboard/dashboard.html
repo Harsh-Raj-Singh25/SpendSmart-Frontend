@@ -57,15 +57,18 @@
       <div class="glass-panel transactions-panel mt-4">
         <div class="panel-header">
           <h3>Transactions</h3>
-          <div class="tab-controls">
-            <button class="btn-tab" [class.active]="activeTab === 'EXPENSE'" (click)="activeTab = 'EXPENSE'">Expenses</button>
-            <button class="btn-tab" [class.active]="activeTab === 'INCOME'" (click)="activeTab = 'INCOME'">Incomes</button>
+          <div class="tx-header-actions">
+            <a routerLink="/transactions" class="btn-outline-sm">Detailed Page</a>
+            <div class="tab-controls">
+              <button class="btn-tab" [class.active]="activeTab === 'EXPENSE'" (click)="activeTab = 'EXPENSE'">Expenses</button>
+              <button class="btn-tab" [class.active]="activeTab === 'INCOME'" (click)="activeTab = 'INCOME'">Incomes</button>
+            </div>
           </div>
         </div>
 
         <div class="transaction-list" *ngIf="activeTab === 'EXPENSE'">
           <div class="transaction-item" *ngFor="let tx of expenseTransactions">
-            <div class="tx-icon expense-icon-bg">🛒</div>
+            <div class="tx-icon expense-icon-bg">{{ getCategoryIcon(tx.categoryId, tx.type) }}</div>
             <div class="tx-details">
               <h4>{{ tx.category }}</h4>
               <p>{{ tx.description }}</p>
@@ -81,7 +84,7 @@
 
         <div class="transaction-list" *ngIf="activeTab === 'INCOME'">
           <div class="transaction-item" *ngFor="let tx of incomeTransactions">
-            <div class="tx-icon income-icon-bg">💰</div>
+            <div class="tx-icon income-icon-bg">{{ getCategoryIcon(tx.categoryId, tx.type) }}</div>
             <div class="tx-details">
               <h4>{{ tx.category }}</h4>
               <p>{{ tx.description }}</p>

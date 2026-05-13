@@ -9,18 +9,19 @@
   <div class="glass-panel form-panel">
     <h3>{{ editingBudgetId ? 'Edit Budget' : 'Create Budget' }}</h3>
     <div class="form-grid">
-      <input type="number" placeholder="User ID" [(ngModel)]="form.userId" />
-      <input type="number" placeholder="Category ID" [(ngModel)]="form.categoryId" />
-      <input type="text" placeholder="Budget name" [(ngModel)]="form.name" />
-      <input type="number" step="0.01" placeholder="Limit amount" [(ngModel)]="form.limitAmount" />
-      <input type="number" min="0" max="100" placeholder="Alert threshold %" [(ngModel)]="form.alertThreshold" />
+      <input type="number" placeholder="User ID (who owns this budget?)" [(ngModel)]="form.userId" />
+      <input type="number" placeholder="Category ID (budget category)" [(ngModel)]="form.categoryId" />
+      <input type="text" placeholder="Budget name (for example: Monthly Groceries)" [(ngModel)]="form.name" />
+      <input type="number" step="0.01" placeholder="Limit amount (e.g. 5000)" [(ngModel)]="form.limitAmount" />
+      <input type="number" min="0" max="100" placeholder="Alert threshold % (e.g. 85)" [(ngModel)]="form.alertThreshold" />
 
-      <select [(ngModel)]="form.period">
+      <select [(ngModel)]="form.period" title="Select period">
+        <option value="" disabled selected>Select budget period...</option>
         <option *ngFor="let period of periods" [ngValue]="period">{{ period }}</option>
       </select>
 
-      <input type="date" [(ngModel)]="form.startDate" />
-      <input type="date" [(ngModel)]="form.endDate" />
+      <input type="date" placeholder="Start date" [(ngModel)]="form.startDate" />
+      <input type="date" placeholder="End date" [(ngModel)]="form.endDate" />
 
       <label class="check-row">
         <input type="checkbox" [(ngModel)]="form.isActive" />

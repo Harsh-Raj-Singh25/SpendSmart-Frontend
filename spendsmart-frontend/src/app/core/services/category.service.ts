@@ -56,4 +56,25 @@ export class CategoryService {
   getById(categoryId: number): Observable<Category> {
     return this.http.get<Category>(`${this.BASE}/${categoryId}`);
   }
+
+  /**
+   * Create a new custom category.
+   */
+  createCategory(category: Partial<Category>): Observable<Category> {
+    return this.http.post<Category>(`${this.BASE}`, category);
+  }
+
+  /**
+   * Update an existing category.
+   */
+  updateCategory(categoryId: number, category: Partial<Category>): Observable<Category> {
+    return this.http.put<Category>(`${this.BASE}/${categoryId}`, category);
+  }
+
+  /**
+   * Delete a category.
+   */
+  deleteCategory(categoryId: number): Observable<void> {
+    return this.http.delete<void>(`${this.BASE}/${categoryId}`);
+  }
 }

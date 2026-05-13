@@ -79,7 +79,9 @@
 
 .action-group {
   display: flex;
-  gap: 0.45rem;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .glass-table {
@@ -130,21 +132,21 @@
 }
 
 .btn-sm {
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
   border: none;
-  border-radius: 8px;
-  padding: 0.4rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  background: var(--accent-secondary);
-  color: #fff;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.btn-success {
-  background: var(--success);
-}
-
-.btn-danger {
-  background: var(--danger);
-}
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
 
 @keyframes spin {
   to { transform: rotate(360deg); }

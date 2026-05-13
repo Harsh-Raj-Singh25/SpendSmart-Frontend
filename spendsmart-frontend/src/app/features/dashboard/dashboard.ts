@@ -9,6 +9,11 @@ import { RecurringService, RecurringTransaction } from '../../core/services/recu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin, of, catchError } from 'rxjs';
 import Chart from 'chart.js/auto';
+import { ModalService } from '../../shared/services/modal.service';
+
+type DashboardTransaction = Transaction & {
+  categoryId: number;
+};
 
 @Component({
   selector: 'app-dashboard',
@@ -23,8 +28,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private pieChartInstance: Chart | null = null;
   private barChartInstance: Chart | null = null;
 
-  incomeTransactions: Transaction[] = [];
-  expenseTransactions: Transaction[] = [];
+  incomeTransactions: DashboardTransaction[] = [];
+  expenseTransactions: DashboardTransaction[] = [];
   
   income = 0;
   expense = 0;
@@ -68,7 +73,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     private analyticsService: AnalyticsService,
     private notificationService: NotificationService,
     private recurringService: RecurringService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private modalService: ModalService
   ) {}
 
   ngOnInit() {
@@ -92,11 +98,53 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   loadAllData() {
     if (!this.userId) return;
     
-    this.loadCategories();
-    this.loadTransactions();
-    this.loadBudgets();
-    this.loadUpcomingRecurring();
-    this.loadAdvancedAnalytics();
+    // Load categories first, THEN load everything else that depends on category names
+    this.loadCategoriesFirst();
+  }
+
+  private loadCategoriesFirst() {
+    if (!this.userId) return;
+    this.categoryService.getByUserId(this.userId).subscribe({
+      next: (cats) => {
+        if (!cats || cats.length === 0) {
+          this.categoryService.initDefaults(this.userId!).subscribe({
+            next: () => this.loadCategoriesFirst(),
+            error: () => {
+              this.categories = [];
+              this.expenseCategories = [];
+              this.incomeCategories = [];
+              // Load other data even if categories failed
+              this.loadTransactions();
+              this.loadBudgets();
+              this.loadUpcomingRecurring();
+              this.loadAdvancedAnalytics();
+            }
+          });
+        } else {
+          this.categories = cats;
+          this.expenseCategories = cats.filter(c => c.type === 'EXPENSE');
+          this.incomeCategories = cats.filter(c => c.type === 'INCOME');
+          if (this.expenseCategories.length > 0) {
+            this.quickCategoryId = this.expenseCategories[0].categoryId;
+          }
+          // Now load all other data after categories are ready
+          this.loadTransactions();
+          this.loadBudgets();
+          this.loadUpcomingRecurring();
+          this.loadAdvancedAnalytics();
+        }
+      },
+      error: () => {
+        this.categories = [];
+        this.expenseCategories = [];
+        this.incomeCategories = [];
+        // Load other data even if categories failed
+        this.loadTransactions();
+        this.loadBudgets();
+        this.loadUpcomingRecurring();
+        this.loadAdvancedAnalytics();
+      }
+    });
   }
 
   loadAdvancedAnalytics() {
@@ -158,12 +206,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   loadCategories() {
     if (!this.userId) return;
+    // This method is kept for backward compatibility but loadCategoriesFirst now handles initial load
     this.categoryService.getByUserId(this.userId).subscribe({
       next: (cats) => {
         if (!cats || cats.length === 0) {
-          // Initialize defaults
           this.categoryService.initDefaults(this.userId!).subscribe({
-            next: () => this.loadCategories() // recursive call once after init
+            next: () => this.loadCategories()
           });
         } else {
           this.categories = cats;
@@ -239,6 +287,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.expenseTransactions = (expenses || []).map((e: any) => ({
           id: Number(e.expenseId),
           backendId: Number(e.expenseId),
+          categoryId: Number(e.categoryId),
           amount: Number(e.amount || 0),
           category: this.getCategoryName(e.categoryId),
           description: e.title || e.notes || 'Expense',
@@ -249,6 +298,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.incomeTransactions = (incomes || []).map((i: any) => ({
           id: Number(i.incomeId),
           backendId: Number(i.incomeId),
+          categoryId: Number(i.categoryId),
           amount: Number(i.amount || 0),
           category: this.getCategoryName(i.categoryId),
           description: i.title || i.notes || 'Income',
@@ -271,6 +321,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   getCategoryName(catId: number): string {
     const cat = this.categories.find(c => c.categoryId === catId);
     return cat ? cat.name : `Category #${catId || '-'}`;
+  }
+
+  getCategoryIcon(catId: number, type: 'INCOME' | 'EXPENSE'): string {
+    const cat = this.categories.find(c => c.categoryId === catId);
+    if (cat?.icon) {
+      return cat.icon;
+    }
+
+    const categoryName = this.getCategoryName(catId);
+    return categoryName !== `Category #${catId || '-'}` ? categoryName.charAt(0).toUpperCase() : (type === 'EXPENSE' ? 'E' : 'I');
   }
 
   calculateSummary() {
@@ -354,18 +414,31 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   removeTransaction(tx: Transaction) {
-    const confirmed = window.confirm('Delete this transaction?');
-    if (!confirmed || !tx.backendId) return;
+    if (!tx.backendId) return;
 
-    const request$ = tx.type === 'EXPENSE'
-      ? this.transactionService.deleteExpense(tx.backendId)
-      : this.transactionService.deleteIncome(tx.backendId);
+    const transactionType = tx.type === 'EXPENSE' ? 'Expense' : 'Income';
+    this.modalService.confirm({
+      title: `Delete ${transactionType}`,
+      message: `Are you sure you want to delete this ${transactionType.toLowerCase()}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
 
-    request$.subscribe({
-      next: () => {
-        this.loadTransactions();
-        this.loadBudgets(); // Refresh budget progress
-      }
+      const request$ = tx.type === 'EXPENSE'
+        ? this.transactionService.deleteExpense(tx.backendId!)
+        : this.transactionService.deleteIncome(tx.backendId!);
+
+      request$.subscribe({
+        next: () => {
+          this.loadTransactions();
+          this.loadBudgets(); // Refresh budget progress
+        },
+        error: () => {
+          this.snackBar.open('Could not remove transaction', 'Close', { duration: 3000 });
+        }
+      });
     });
   }
   
@@ -404,9 +477,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
   
   deleteBudget(budgetId: number) {
-    if (confirm('Delete this budget?')) {
+    this.modalService.confirm({
+      title: 'Delete Budget',
+      message: 'Delete this budget? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
       this.budgetService.deleteBudget(budgetId).subscribe(() => this.loadBudgets());
-    }
+    });
   }
 
   // Analytics Charts

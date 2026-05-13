@@ -1,0 +1,110 @@
+<div class="budgets-page">
+  <div class="page-head">
+    <div>
+      <h2 class="text-gradient">Budgets</h2>
+      <p>Create detailed budgets and track progress in one place.</p>
+    </div>
+    <a routerLink="/dashboard" class="btn-outline">Back to Dashboard</a>
+  </div>
+
+  <div class="content-grid">
+    <div class="glass-panel form-panel">
+      <h3>Add Budget</h3>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="budget-form">
+        <div class="row-2">
+          <label>
+            <span>Category</span>
+            <select formControlName="categoryId">
+              <option [ngValue]="null">Select category...</option>
+              <option *ngFor="let cat of expenseCategories" [value]="cat.categoryId">{{ cat.name }}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Budget Name</span>
+            <input type="text" formControlName="name" placeholder="Monthly Groceries" />
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label>
+            <span>Limit Amount</span>
+            <input type="number" min="0.01" step="0.01" formControlName="limitAmount" placeholder="5000" />
+          </label>
+
+          <label>
+            <span>Alert Threshold %</span>
+            <input type="number" min="0" max="100" formControlName="alertThreshold" placeholder="85" />
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label>
+            <span>Period</span>
+            <select formControlName="period">
+              <option value="" disabled>Select period...</option>
+              <option *ngFor="let period of periods" [value]="period">{{ period }}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Start Date</span>
+            <input type="date" formControlName="startDate" />
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label>
+            <span>End Date</span>
+            <input type="date" formControlName="endDate" />
+          </label>
+
+          <label class="check-row">
+            <input type="checkbox" formControlName="isActive" />
+            <span>Active</span>
+          </label>
+        </div>
+
+        <button class="btn-primary" type="submit" [disabled]="submitting || form.invalid">
+          {{ submitting ? 'Saving...' : 'Add Budget' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="glass-panel list-panel">
+      <div class="list-head">
+        <h3>Budget History</h3>
+        <p class="subtle">Track spending against each budget.</p>
+      </div>
+
+      <p class="empty-state" *ngIf="loading">Loading budgets...</p>
+
+      <div class="budget-list" *ngIf="!loading">
+        <div class="budget-item" *ngFor="let item of budgetCards">
+          <div class="budget-badge" [class]="progressClass(item.progress)">
+            {{ item.progress?.percentageUsed ?? 0 | number:'1.0-0' }}%
+          </div>
+          <div class="budget-main">
+            <h4>{{ item.budget.name }}</h4>
+            <p>{{ item.categoryName }} • {{ item.budget.period }} • {{ item.budget.startDate | date:'mediumDate' }} to {{ item.budget.endDate | date:'mediumDate' }}</p>
+            <div class="budget-progress-bar">
+              <span [style.width.%]="item.progress?.percentageUsed || 0"></span>
+            </div>
+            <small>
+              Spent {{ item.progress?.spentAmount || item.budget.spentAmount || 0 | currency:'INR':'symbol':'1.2-2' }}
+              of {{ item.budget.limitAmount | currency:'INR':'symbol':'1.2-2' }}
+              • Remaining {{ item.progress?.remainingAmount ?? item.budget.limitAmount | currency:'INR':'symbol':'1.2-2' }}
+            </small>
+          </div>
+          <div class="budget-status" [class]="progressClass(item.progress)">
+            {{ item.progress?.alertStatus || 'SAFE' }}
+          </div>
+          <button class="btn-delete" (click)="removeBudget(item.budget)">Delete</button>
+        </div>
+
+        <p class="empty-state" *ngIf="budgetCards.length === 0">No budgets yet.</p>
+      </div>
+    </div>
+  </div>
+</div>

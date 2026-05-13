@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth';
+import { ModalService } from '../../../shared/services/modal.service';
 
 @Component({
   selector: 'app-profile',
@@ -27,7 +28,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private modalService: ModalService
   ) {
     this.profileForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -122,17 +124,24 @@ export class ProfileComponent implements OnInit {
   deactivateAccount(): void {
     if (!this.userId) return;
 
-    const confirmed = window.confirm('Deactivate your account? You will be logged out.');
-    if (!confirmed) return;
+    this.modalService.confirm({
+      title: 'Deactivate Account',
+      message: 'Deactivate your account? You will be logged out.',
+      confirmText: 'Deactivate',
+      cancelText: 'Cancel',
+      confirmClass: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
 
-    this.authService.deactivateAccount(this.userId).subscribe({
-      next: () => {
-        this.snackBar.open('Account deactivated', 'Close', { duration: 2500 });
-        this.authService.logout();
-      },
-      error: (err) => {
-        this.snackBar.open(err.error?.message || 'Could not deactivate account', 'Close', { duration: 3000 });
-      }
+      this.authService.deactivateAccount(this.userId!).subscribe({
+        next: () => {
+          this.snackBar.open('Account deactivated', 'Close', { duration: 2500 });
+          this.authService.logout();
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.message || 'Could not deactivate account', 'Close', { duration: 3000 });
+        }
+      });
     });
   }
 }

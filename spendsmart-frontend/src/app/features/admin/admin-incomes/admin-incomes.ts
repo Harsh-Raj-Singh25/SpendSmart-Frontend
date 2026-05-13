@@ -1,7 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminIncome, AdminIncomeRequest, AdminService } from '../../../core/services/admin.service';
+import { ModalService } from '../../../shared/services/modal.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+
+type AdminIncomeForm = Omit<AdminIncomeRequest, 'userId' | 'categoryId' | 'amount' | 'source' | 'recurrencePeriod'> & {
+  userId: number | null;
+  categoryId: number | null;
+  amount: number | null;
+  source: string;
+  recurrencePeriod: string;
+};
 
 @Component({
   selector: 'app-admin-incomes',
@@ -18,20 +27,20 @@ export class AdminIncomesComponent implements OnInit {
   readonly sources = ['SALARY', 'BUSINESS', 'INVESTMENT', 'FREELANCE', 'RENTAL', 'BONUS', 'OTHER'];
   readonly recurrencePeriods = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
 
-  form: AdminIncomeRequest = {
-    userId: 0,
-    categoryId: 0,
+  form: AdminIncomeForm = {
+    userId: null,
+    categoryId: null,
     title: '',
-    amount: 0,
+    amount: null,
     currency: 'INR',
-    source: 'SALARY',
+    source: '',
     date: new Date().toISOString().slice(0, 10),
     notes: '',
     isRecurring: false,
     recurrencePeriod: ''
   };
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private modalService: ModalService) {}
 
   ngOnInit() {
     this.loadIncomes();
@@ -97,15 +106,19 @@ export class AdminIncomesComponent implements OnInit {
   }
 
   delete(income: AdminIncome) {
-    const confirmed = window.confirm(`Delete income #${income.incomeId}?`);
-    if (!confirmed) {
-      return;
-    }
-
-    this.adminService.deleteIncome(income.incomeId).subscribe({
-      next: () => {
-        this.incomes = this.incomes.filter(i => i.incomeId !== income.incomeId);
-      }
+    this.modalService.confirm({
+      title: 'Delete Income',
+      message: `Delete income #${income.incomeId}?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.adminService.deleteIncome(income.incomeId).subscribe({
+        next: () => {
+          this.incomes = this.incomes.filter(i => i.incomeId !== income.incomeId);
+        }
+      });
     });
   }
 
@@ -115,7 +128,7 @@ export class AdminIncomesComponent implements OnInit {
       this.form.userId &&
       this.form.categoryId &&
       this.form.title?.trim() &&
-      this.form.amount > 0 &&
+      Number(this.form.amount ?? 0) > 0 &&
       this.form.date &&
       this.form.source &&
       recurringValidity
@@ -124,12 +137,12 @@ export class AdminIncomesComponent implements OnInit {
 
   private resetForm() {
     this.form = {
-      userId: 0,
-      categoryId: 0,
+      userId: null,
+      categoryId: null,
       title: '',
-      amount: 0,
+      amount: null,
       currency: 'INR',
-      source: 'SALARY',
+      source: '',
       date: new Date().toISOString().slice(0, 10),
       notes: '',
       isRecurring: false,

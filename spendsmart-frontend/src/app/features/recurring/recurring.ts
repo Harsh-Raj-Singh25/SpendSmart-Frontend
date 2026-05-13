@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth';
 import { CategoryService, Category } from '../../core/services/category.service';
 import { RecurringService, RecurringTransaction, RecurringType, Frequency } from '../../core/services/recurring.service';
+import { ModalService } from '../../shared/services/modal.service';
 
 @Component({
   selector: 'app-recurring',
@@ -28,7 +29,8 @@ export class RecurringComponent implements OnInit {
     private authService: AuthService,
     private categoryService: CategoryService,
     private recurringService: RecurringService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private modalService: ModalService
   ) {
     const today = new Date().toISOString().split('T')[0];
     this.recurringForm = this.fb.group({
@@ -139,15 +141,22 @@ export class RecurringComponent implements OnInit {
 
   remove(item: RecurringTransaction): void {
     if (!item.recurringId) return;
-    const ok = window.confirm('Delete this recurring rule?');
-    if (!ok) return;
+    this.modalService.confirm({
+      title: 'Delete Recurring Rule',
+      message: 'Are you sure you want to delete this recurring rule? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
 
-    this.recurringService.delete(item.recurringId).subscribe({
-      next: () => {
-        this.snackBar.open('Recurring rule deleted', 'Close', { duration: 2500 });
-        this.loadRecurring();
-      },
-      error: () => this.snackBar.open('Failed to delete recurring rule', 'Close', { duration: 3000 })
+      this.recurringService.delete(item.recurringId!).subscribe({
+        next: () => {
+          this.snackBar.open('Recurring rule deleted', 'Close', { duration: 2500 });
+          this.loadRecurring();
+        },
+        error: () => this.snackBar.open('Failed to delete recurring rule', 'Close', { duration: 3000 })
+      });
     });
   }
 

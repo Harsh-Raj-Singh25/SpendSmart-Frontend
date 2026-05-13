@@ -6,6 +6,9 @@ import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { PremiumComponent } from './features/premium/premium';
 import { RecurringComponent } from './features/recurring/recurring';
+import { TransactionsComponent } from './features/transactions/transactions';
+import { BudgetsComponent } from './features/budgets/budgets';
+import { CategoriesComponent } from './features/categories/categories';
 import { NotificationsComponent } from './features/notifications/notifications';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard';
@@ -23,6 +26,9 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [GuestGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'transactions', component: TransactionsComponent, canActivate: [AuthGuard] },
+  { path: 'budgets', component: BudgetsComponent, canActivate: [AuthGuard] },
+  { path: 'categories', component: CategoriesComponent, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   { path: 'recurring', component: RecurringComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

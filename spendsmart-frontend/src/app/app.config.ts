@@ -17,6 +17,8 @@ import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { PremiumComponent } from './features/premium/premium';
 import { RecurringComponent } from './features/recurring/recurring';
+import { TransactionsComponent } from './features/transactions/transactions';
+import { BudgetsComponent } from './features/budgets/budgets';
 import { NotificationsComponent } from './features/notifications/notifications';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard';
@@ -25,11 +27,12 @@ import { AdminIncomesComponent } from './features/admin/admin-incomes/admin-inco
 import { AdminBudgetsComponent } from './features/admin/admin-budgets/admin-budgets';
 import { ProfileComponent } from './features/auth/profile/profile';
 import { NavbarComponent } from './shared/components/navbar/navbar';
+import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [
-    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent
+    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, TransactionsComponent, BudgetsComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent, ConfirmDialogComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,

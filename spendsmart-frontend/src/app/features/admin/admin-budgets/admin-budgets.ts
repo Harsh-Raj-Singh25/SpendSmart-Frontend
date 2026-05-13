@@ -1,7 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminBudget, AdminBudgetRequest, AdminService } from '../../../core/services/admin.service';
+import { ModalService } from '../../../shared/services/modal.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+
+type AdminBudgetForm = Omit<AdminBudgetRequest, 'userId' | 'categoryId' | 'limitAmount' | 'spentAmount' | 'alertThreshold' | 'period'> & {
+  userId: number | null;
+  categoryId: number | null;
+  limitAmount: number | null;
+  spentAmount: number | null;
+  alertThreshold: number | null;
+  period: string;
+};
 
 @Component({
   selector: 'app-admin-budgets',
@@ -17,21 +27,21 @@ export class AdminBudgetsComponent implements OnInit {
 
   readonly periods = ['WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'];
 
-  form: AdminBudgetRequest = {
-    userId: 0,
-    categoryId: 0,
+  form: AdminBudgetForm = {
+    userId: null,
+    categoryId: null,
     name: '',
-    limitAmount: 0,
+    limitAmount: null,
     currency: 'INR',
-    period: 'MONTHLY',
+    period: '',
     startDate: new Date().toISOString().slice(0, 10),
     endDate: new Date().toISOString().slice(0, 10),
-    spentAmount: 0,
-    alertThreshold: 80,
+    spentAmount: null,
+    alertThreshold: null,
     isActive: true
   };
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private modalService: ModalService) {}
 
   ngOnInit() {
     this.loadBudgets();
@@ -99,15 +109,19 @@ export class AdminBudgetsComponent implements OnInit {
   }
 
   delete(budget: AdminBudget) {
-    const confirmed = window.confirm(`Delete budget #${budget.budgetId}?`);
-    if (!confirmed) {
-      return;
-    }
-
-    this.adminService.deleteBudget(budget.budgetId).subscribe({
-      next: () => {
-        this.budgets = this.budgets.filter(b => b.budgetId !== budget.budgetId);
-      }
+    this.modalService.confirm({
+      title: 'Delete Budget',
+      message: `Delete budget #${budget.budgetId}?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.adminService.deleteBudget(budget.budgetId).subscribe({
+        next: () => {
+          this.budgets = this.budgets.filter(b => b.budgetId !== budget.budgetId);
+        }
+      });
     });
   }
 
@@ -116,7 +130,7 @@ export class AdminBudgetsComponent implements OnInit {
       this.form.userId &&
       this.form.categoryId &&
       this.form.name?.trim() &&
-      this.form.limitAmount > 0 &&
+      Number(this.form.limitAmount ?? 0) > 0 &&
       this.form.period &&
       this.form.startDate &&
       this.form.endDate
@@ -126,16 +140,16 @@ export class AdminBudgetsComponent implements OnInit {
   private resetForm() {
     const now = new Date().toISOString().slice(0, 10);
     this.form = {
-      userId: 0,
-      categoryId: 0,
+      userId: null,
+      categoryId: null,
       name: '',
-      limitAmount: 0,
+      limitAmount: null,
       currency: 'INR',
-      period: 'MONTHLY',
+      period: '',
       startDate: now,
       endDate: now,
-      spentAmount: 0,
-      alertThreshold: 80,
+      spentAmount: null,
+      alertThreshold: null,
       isActive: true
     };
   }

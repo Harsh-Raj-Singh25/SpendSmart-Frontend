@@ -9,17 +9,19 @@
   <div class="glass-panel form-panel">
     <h3>{{ editingExpenseId ? 'Edit Expense' : 'Create Expense' }}</h3>
     <div class="form-grid">
-      <input type="number" placeholder="User ID" [(ngModel)]="form.userId" />
-      <input type="number" placeholder="Category ID" [(ngModel)]="form.categoryId" />
-      <input type="text" placeholder="Title" [(ngModel)]="form.title" />
-      <input type="number" step="0.01" placeholder="Amount" [(ngModel)]="form.amount" />
-      <input type="date" [(ngModel)]="form.date" />
+      <input type="number" placeholder="User ID (who spent the money?)" [(ngModel)]="form.userId" />
+      <input type="number" placeholder="Category ID (expense category)" [(ngModel)]="form.categoryId" />
+      <input type="text" placeholder="Title (for example: Office lunch)" [(ngModel)]="form.title" />
+      <input type="number" step="0.01" placeholder="Amount (e.g. 250.50)" [(ngModel)]="form.amount" />
+      <input type="date" placeholder="Date of expense" [(ngModel)]="form.date" />
 
-      <select [(ngModel)]="form.type">
+      <select [(ngModel)]="form.type" title="Select expense type">
+        <option value="" disabled selected>Select expense type...</option>
         <option *ngFor="let type of expenseTypes" [ngValue]="type">{{ type }}</option>
       </select>
 
-      <select [(ngModel)]="form.paymentMethod">
+      <select [(ngModel)]="form.paymentMethod" title="Select payment method">
+        <option value="" disabled selected>Select payment method...</option>
         <option *ngFor="let method of paymentMethods" [ngValue]="method">{{ method }}</option>
       </select>
 

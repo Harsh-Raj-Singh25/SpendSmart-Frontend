@@ -9,13 +9,14 @@
   <div class="glass-panel form-panel">
     <h3>{{ editingIncomeId ? 'Edit Income' : 'Create Income' }}</h3>
     <div class="form-grid">
-      <input type="number" placeholder="User ID" [(ngModel)]="form.userId" />
-      <input type="number" placeholder="Category ID" [(ngModel)]="form.categoryId" />
-      <input type="text" placeholder="Title" [(ngModel)]="form.title" />
-      <input type="number" step="0.01" placeholder="Amount" [(ngModel)]="form.amount" />
-      <input type="date" [(ngModel)]="form.date" />
+      <input type="number" placeholder="User ID (who received the income?)" [(ngModel)]="form.userId" />
+      <input type="number" placeholder="Category ID (income category)" [(ngModel)]="form.categoryId" />
+      <input type="text" placeholder="Title (for example: Freelance project)" [(ngModel)]="form.title" />
+      <input type="number" step="0.01" placeholder="Amount (e.g. 5000.00)" [(ngModel)]="form.amount" />
+      <input type="date" placeholder="Date of income" [(ngModel)]="form.date" />
 
-      <select [(ngModel)]="form.source">
+      <select [(ngModel)]="form.source" title="Select income source">
+        <option value="" disabled selected>Select income source...</option>
         <option *ngFor="let source of sources" [ngValue]="source">{{ source }}</option>
       </select>
 
@@ -24,8 +25,8 @@
         Recurring
       </label>
 
-      <select *ngIf="form.isRecurring" [(ngModel)]="form.recurrencePeriod">
-        <option [ngValue]="''">Select recurrence period</option>
+      <select *ngIf="form.isRecurring" [(ngModel)]="form.recurrencePeriod" title="Select recurrence period">
+        <option value="" disabled selected>Select recurrence period...</option>
         <option *ngFor="let period of recurrencePeriods" [ngValue]="period">{{ period }}</option>
       </select>
 

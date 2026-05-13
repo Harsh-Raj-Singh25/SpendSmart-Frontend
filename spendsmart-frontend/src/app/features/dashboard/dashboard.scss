@@ -112,6 +112,12 @@
   }
 }
 
+.tx-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 /* Transactions */
 .transactions-panel, .analytics-panel {
   padding: 1.5rem;

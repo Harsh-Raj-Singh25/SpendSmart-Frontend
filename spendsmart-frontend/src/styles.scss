@@ -109,6 +109,8 @@ body {
 
 .text-gradient {
   background: linear-gradient(135deg, var(--accent-primary) 0%, #a855f7 100%);
+  // background: linear-gradient(135deg, #ea8501e8 0%, #120b02 100%) ; // for orange and black mix
+   
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

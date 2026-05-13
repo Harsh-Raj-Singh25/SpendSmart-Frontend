@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AdminCreateUserRequest, AdminService, AdminUserView } from '../../../core/services/admin.service';
+import { ModalService } from '../../../shared/services/modal.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -30,7 +31,8 @@ export class UserManagementComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private http: HttpClient
+    private http: HttpClient,
+    private modalService: ModalService
   ) {}
 
   ngOnInit() {
@@ -90,13 +92,19 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(user: AdminUserView) {
-    const confirmed = window.confirm(`Delete user ${user.email}? This cannot be undone.`);
-    if (!confirmed) return;
-
-    this.adminService.deleteUser(user.userId).subscribe({
-      next: () => {
-        this.users = this.users.filter(u => u.userId !== user.userId);
-      }
+    this.modalService.confirm({
+      title: 'Delete User',
+      message: `Delete user ${user.email}? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.adminService.deleteUser(user.userId).subscribe({
+        next: () => {
+          this.users = this.users.filter(u => u.userId !== user.userId);
+        }
+      });
     });
   }
 

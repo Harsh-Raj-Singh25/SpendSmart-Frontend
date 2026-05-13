@@ -1,0 +1,111 @@
+<div class="transactions-page">
+  <div class="page-head">
+    <div>
+      <h2 class="text-gradient">Transactions</h2>
+      <p>Add detailed expense/income entries and manage them in one place.</p>
+    </div>
+    <a routerLink="/dashboard" class="btn-outline">Back to Dashboard</a>
+  </div>
+
+  <div class="content-grid">
+    <div class="glass-panel add-panel">
+      <h3>Add Transaction</h3>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="tx-form">
+        <div class="row-2">
+          <label>
+            <span>Type</span>
+            <select formControlName="type">
+              <option value="EXPENSE">Expense</option>
+              <option value="INCOME">Income</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Category</span>
+            <select formControlName="categoryId">
+              <option [ngValue]="null">Select category...</option>
+              <option *ngFor="let cat of filteredCategories" [value]="cat.categoryId">{{ cat.name }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label>
+            <span>Title</span>
+            <input type="text" formControlName="title" placeholder="General expense" />
+          </label>
+
+          <label>
+            <span>Amount</span>
+            <input type="number" min="0.01" step="0.01" formControlName="amount" placeholder="0.00" />
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label>
+            <span>Payment Method</span>
+            <select formControlName="paymentMethod">
+              <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Date</span>
+            <input type="date" formControlName="date" />
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label class="check-row">
+            <input type="checkbox" formControlName="isRecurring" />
+            <span>Recurring</span>
+          </label>
+          <div></div>
+        </div>
+
+        <button class="btn-primary" type="submit" [disabled]="submitting || form.invalid">
+          {{ submitting ? 'Saving...' : 'Add Transaction' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="glass-panel list-panel">
+      <div class="list-head">
+        <h3>Transaction History</h3>
+        <div class="tab-controls">
+          <button class="btn-tab" [class.active]="activeTab === 'EXPENSE'" (click)="setTab('EXPENSE')">Expenses</button>
+          <button class="btn-tab" [class.active]="activeTab === 'INCOME'" (click)="setTab('INCOME')">Incomes</button>
+        </div>
+      </div>
+
+      <p class="empty-state" *ngIf="loading">Loading transactions...</p>
+
+      <div class="transaction-list" *ngIf="!loading && activeTab === 'EXPENSE'">
+        <div class="transaction-item" *ngFor="let tx of expenseTransactions">
+          <div class="tx-icon expense">{{ getCategoryIcon(tx.categoryId || 0, tx.type) }}</div>
+          <div class="tx-main">
+            <h4>{{ tx.description }}</h4>
+            <p>{{ tx.category }} • {{ tx.date | date:'mediumDate' }}</p>
+          </div>
+          <div class="tx-amount text-danger">-{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}</div>
+          <button class="btn-delete" (click)="removeTransaction(tx)">Delete</button>
+        </div>
+        <p class="empty-state" *ngIf="expenseTransactions.length === 0">No expenses yet.</p>
+      </div>
+
+      <div class="transaction-list" *ngIf="!loading && activeTab === 'INCOME'">
+        <div class="transaction-item" *ngFor="let tx of incomeTransactions">
+          <div class="tx-icon income">{{ getCategoryIcon(tx.categoryId || 0, tx.type) }}</div>
+          <div class="tx-main">
+            <h4>{{ tx.description }}</h4>
+            <p>{{ tx.category }} • {{ tx.date | date:'mediumDate' }}</p>
+          </div>
+          <div class="tx-amount text-success">+{{ tx.amount | currency:'INR':'symbol':'1.2-2' }}</div>
+          <button class="btn-delete" (click)="removeTransaction(tx)">Delete</button>
+        </div>
+        <p class="empty-state" *ngIf="incomeTransactions.length === 0">No incomes yet.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminExpense, AdminExpenseRequest, AdminService } from '../../../core/services/admin.service';
+import { ModalService } from '../../../shared/services/modal.service';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+
+type AdminExpenseForm = Omit<AdminExpenseRequest, 'userId' | 'categoryId' | 'amount' | 'type' | 'paymentMethod'> & {
+  userId: number | null;
+  categoryId: number | null;
+  amount: number | null;
+  type: string;
+  paymentMethod: string;
+};
 
 @Component({
   selector: 'app-admin-expenses',
@@ -18,20 +27,20 @@ export class AdminExpensesComponent implements OnInit {
   readonly expenseTypes = ['FOOD', 'TRANSPORT', 'BILLS', 'HEALTHCARE', 'ENTERTAINMENT', 'SHOPPING', 'OTHER'];
   readonly paymentMethods = ['CASH', 'UPI', 'CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'NET_BANKING', 'WALLET'];
 
-  form: AdminExpenseRequest = {
-    userId: 0,
-    categoryId: 0,
+  form: AdminExpenseForm = {
+    userId: null,
+    categoryId: null,
     title: '',
-    amount: 0,
+    amount: null,
     currency: 'INR',
-    type: 'OTHER',
-    paymentMethod: 'UPI',
+    type: '',
+    paymentMethod: '',
     date: new Date().toISOString().slice(0, 10),
     notes: '',
     isRecurring: false
   };
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private modalService: ModalService) {}
 
   ngOnInit() {
     this.loadExpenses();
@@ -96,15 +105,19 @@ export class AdminExpensesComponent implements OnInit {
   }
 
   delete(expense: AdminExpense) {
-    const confirmed = window.confirm(`Delete expense #${expense.expenseId}?`);
-    if (!confirmed) {
-      return;
-    }
-
-    this.adminService.deleteExpense(expense.expenseId).subscribe({
-      next: () => {
-        this.expenses = this.expenses.filter(e => e.expenseId !== expense.expenseId);
-      }
+    this.modalService.confirm({
+      title: 'Delete Expense',
+      message: `Delete expense #${expense.expenseId}?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'danger'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.adminService.deleteExpense(expense.expenseId).subscribe({
+        next: () => {
+          this.expenses = this.expenses.filter(e => e.expenseId !== expense.expenseId);
+        }
+      });
     });
   }
 
@@ -113,7 +126,7 @@ export class AdminExpensesComponent implements OnInit {
       this.form.userId &&
       this.form.categoryId &&
       this.form.title?.trim() &&
-      this.form.amount > 0 &&
+      Number(this.form.amount ?? 0) > 0 &&
       this.form.date &&
       this.form.paymentMethod
     );
@@ -121,13 +134,13 @@ export class AdminExpensesComponent implements OnInit {
 
   private resetForm() {
     this.form = {
-      userId: 0,
-      categoryId: 0,
+      userId: null,
+      categoryId: null,
       title: '',
-      amount: 0,
+      amount: null,
       currency: 'INR',
-      type: 'OTHER',
-      paymentMethod: 'UPI',
+      type: '',
+      paymentMethod: '',
       date: new Date().toISOString().slice(0, 10),
       notes: '',
       isRecurring: false

@@ -1,0 +1,173 @@
+<div class="categories-page">
+  <div class="page-head">
+    <div>
+      <h2 class="text-gradient">Categories</h2>
+      <p>Create your own expense and income categories with custom icons and colors.</p>
+    </div>
+    <button class="btn-outline" (click)="goBack()">Back to Dashboard</button>
+  </div>
+
+  <div class="content-grid">
+    <div class="glass-panel form-panel">
+      <div class="panel-title-row">
+        <div>
+          <h3>{{ categoryForm?.get('name')?.value ? 'Edit Category' : 'Add Category' }}</h3>
+          <p class="subtle">Build a category that feels like your own.</p>
+        </div>
+        <div class="category-preview" [style.backgroundColor]="categoryForm.get('colorCode')?.value">
+          <span>{{ categoryForm.get('icon')?.value }}</span>
+        </div>
+      </div>
+
+      <form [formGroup]="categoryForm" class="category-form">
+        <div class="form-group">
+          <label for="categoryName">Category Name *</label>
+          <input
+            id="categoryName"
+            type="text"
+            formControlName="name"
+            placeholder="e.g., Groceries, Travel, Salary"
+            class="form-control"
+          />
+          <span class="error" *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched">
+            Name is required (2-50 characters)
+          </span>
+        </div>
+
+        <div class="row-2">
+          <div class="form-group">
+            <label for="categoryType">Type *</label>
+            <select id="categoryType" formControlName="type" class="form-control">
+              <option value="">Select type...</option>
+              <option value="EXPENSE">Expense</option>
+              <option value="INCOME">Income</option>
+            </select>
+            <span class="error" *ngIf="categoryForm.get('type')?.invalid && categoryForm.get('type')?.touched">
+              Type is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="categoryColor">Color *</label>
+            <div class="color-input">
+              <input
+                id="categoryColor"
+                type="text"
+                formControlName="colorCode"
+                readonly
+                placeholder="Select color"
+                class="form-control"
+              />
+              <button
+                type="button"
+                class="btn-color-picker"
+                [style.backgroundColor]="categoryForm.get('colorCode')?.value"
+                (click)="showColorPicker = !showColorPicker"
+              ></button>
+            </div>
+            <div class="color-picker" *ngIf="showColorPicker">
+              <div class="color-grid">
+                <button
+                  type="button"
+                  *ngFor="let color of presetColors"
+                  class="color-option"
+                  [style.backgroundColor]="color"
+                  [class.selected]="color === categoryForm.get('colorCode')?.value"
+                  (click)="selectColor(color)"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group icon-group">
+          <label for="categoryIcon">Icon *</label>
+          <div class="icon-input">
+            <input
+              id="categoryIcon"
+              type="text"
+              formControlName="icon"
+              readonly
+              placeholder="Select icon"
+              class="form-control"
+            />
+            <button
+              type="button"
+              class="btn-icon-picker"
+              (click)="showIconPicker = !showIconPicker"
+            >
+              {{ categoryForm.get('icon')?.value }}
+            </button>
+          </div>
+          <div class="icon-picker" *ngIf="showIconPicker">
+            <div class="icon-grid">
+              <button
+                type="button"
+                *ngFor="let icon of presetIcons; let i = index"
+                class="icon-option"
+                [class.selected]="i === selectedIconIndex"
+                (click)="selectIcon(icon, i)"
+              >
+                {{ icon }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="createCategory()"
+            [disabled]="!categoryForm.valid || loading"
+          >
+            {{ loading ? 'Saving...' : categoryForm?.get('name')?.value ? 'Update' : 'Create' }}
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="resetForm()"
+            [disabled]="loading"
+          >
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="glass-panel list-panel">
+      <div class="panel-title-row">
+        <div>
+          <h3>Your Categories</h3>
+          <p class="subtle">{{ categories.length }} custom categories in your account.</p>
+        </div>
+        <div class="count-pill">{{ categories.length }}</div>
+      </div>
+
+      <div *ngIf="categories.length === 0" class="empty-state">
+        <p>No custom categories yet.</p>
+        <p class="hint">Add one on the left to get started.</p>
+      </div>
+
+      <div class="category-list" *ngIf="categories.length > 0">
+        <div *ngFor="let category of categories" class="category-item">
+          <div class="category-info">
+            <div class="category-icon" [style.backgroundColor]="category.colorCode">
+              {{ category.icon }}
+            </div>
+            <div class="category-details">
+              <h4>{{ category.name }}</h4>
+              <p class="category-type" [class.income]="category.type === 'INCOME'">
+                {{ category.type }}
+              </p>
+            </div>
+          </div>
+          <div class="category-actions">
+            <button type="button" class="btn-sm btn-edit" (click)="editCategory(category)">Edit</button>
+            <button type="button" class="btn-sm btn-delete" (click)="deleteCategory(category)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

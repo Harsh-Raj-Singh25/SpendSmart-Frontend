@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 export interface Transaction {
   id?: number;
   backendId?: number;
+  categoryId?: number;
   amount: number;
   category: string;
   description: string;
