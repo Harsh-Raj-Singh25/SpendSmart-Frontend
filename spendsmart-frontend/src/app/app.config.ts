@@ -29,10 +29,11 @@ import { ProfileComponent } from './features/auth/profile/profile';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
+import { LandingComponent } from './features/landing/landing';
 
 @NgModule({
   declarations: [
-    AppComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, TransactionsComponent, BudgetsComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent, ConfirmDialogComponent
+    AppComponent, LandingComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, TransactionsComponent, BudgetsComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent, ConfirmDialogComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,

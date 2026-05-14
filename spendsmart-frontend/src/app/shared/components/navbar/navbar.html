@@ -69,6 +69,14 @@
     <!-- Links when not logged in OR on auth pages -->
     <ng-container *ngIf="!showAppLinks()">
       <div class="auth-actions">
+        <!-- Landing Page Specific Links -->
+        <ng-container *ngIf="isLandingPage()">
+          <a class="nav-item auth-toggle-link" (click)="scrollToSection('showcase')" style="cursor: pointer;">Showcase</a>
+          <a class="nav-item auth-toggle-link" (click)="scrollToSection('benefits')" style="cursor: pointer;">Benefits</a>
+          <a class="nav-item auth-toggle-link" (click)="scrollToSection('pricing')" style="cursor: pointer;">Pricing</a>
+          <a class="nav-item auth-toggle-link" (click)="scrollToSection('faq')" style="cursor: pointer; margin-right: 15px;">FAQ</a>
+        </ng-container>
+
         <button class="btn-icon" (click)="toggleTheme()">
           <span *ngIf="!isDarkMode()">🌙</span>
           <span *ngIf="isDarkMode()">☀️</span>

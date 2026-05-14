@@ -11,7 +11,7 @@
     <div class="glass-panel form-panel">
       <div class="panel-title-row">
         <div>
-          <h3>{{ categoryForm?.get('name')?.value ? 'Edit Category' : 'Add Category' }}</h3>
+          <h3>{{ categoryForm.get('name')?.value ? 'Edit Category' : 'Add Category' }}</h3>
           <p class="subtle">Build a category that feels like your own.</p>
         </div>
         <div class="category-preview" [style.backgroundColor]="categoryForm.get('colorCode')?.value">
@@ -121,7 +121,7 @@
             (click)="createCategory()"
             [disabled]="!categoryForm.valid || loading"
           >
-            {{ loading ? 'Saving...' : categoryForm?.get('name')?.value ? 'Update' : 'Create' }}
+            {{ loading ? 'Saving...' : categoryForm.get('name')?.value ? 'Update' : 'Create' }}
           </button>
           <button
             type="button"

@@ -19,9 +19,10 @@ import { ProfileComponent } from './features/auth/profile/profile';
 import { AuthGuard } from './core/guards/auth-guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { GuestGuard } from './core/guards/guest.guard';
+import { LandingComponent } from './features/landing/landing';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', component: LandingComponent, canActivate: [GuestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [GuestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [GuestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [GuestGuard] },

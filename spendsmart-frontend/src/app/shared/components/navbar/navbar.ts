@@ -45,6 +45,27 @@ export class NavbarComponent {
   }
 
   /**
+   * Check if user is on the landing page.
+   */
+  isLandingPage(): boolean {
+    return this.currentRoute === '/';
+  }
+
+  scrollToSection(sectionId: string) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (this.currentRoute !== '/') {
+      this.router.navigate(['/']).then(() => {
+        setTimeout(() => {
+          const el = document.getElementById(sectionId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      });
+    }
+  }
+
+  /**
    * Show full nav links only when logged in AND not on auth pages.
    */
   showAppLinks(): boolean {

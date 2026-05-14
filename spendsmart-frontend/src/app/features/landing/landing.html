@@ -1,0 +1,207 @@
+<div class="landing-container">
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Master Your Money. <span class="text-gradient highlight">Simplify Your Life.</span>
+      </h1>
+      <p class="hero-subtitle">
+        SpendSmart is your all-in-one personal finance dashboard. Track transactions, set strict budgets, and let automated alerts keep your financial health in check.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary" routerLink="/register">Get Started — It's Free</button>
+        <button class="btn-outline" routerLink="/login">Log In</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Feature Showcase Section -->
+  <section class="showcase-section" id="showcase">
+    <h2 class="section-title">See SpendSmart in Action</h2>
+    <div class="showcase-grid">
+      <!-- Tabs Column -->
+      <div class="showcase-tabs">
+        <div class="showcase-tab" 
+             [class.active]="activeFeature === 'analytics'" 
+             (click)="setActiveFeature('analytics')">
+          <div class="tab-icon">📊</div>
+          <div class="tab-content">
+            <h4 class="tab-title">Smart Analytics</h4>
+            <p class="tab-desc">Visualize your spending patterns instantly.</p>
+          </div>
+        </div>
+        
+        <div class="showcase-tab" 
+             [class.active]="activeFeature === 'recurring'" 
+             (click)="setActiveFeature('recurring')">
+          <div class="tab-icon">🔄</div>
+          <div class="tab-content">
+            <h4 class="tab-title">Recurring Rules</h4>
+            <p class="tab-desc">Automate your fixed bills and subscriptions.</p>
+          </div>
+        </div>
+
+        <div class="showcase-tab" 
+             [class.active]="activeFeature === 'alerts'" 
+             (click)="setActiveFeature('alerts')">
+          <div class="tab-icon">⚠️</div>
+          <div class="tab-content">
+            <h4 class="tab-title">Proactive Alerts</h4>
+            <p class="tab-desc">Get notified before you overspend.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Image Column -->
+      <div class="showcase-image-container glass-panel">
+        <img *ngIf="activeFeature === 'analytics'" src="assets/images/analytics_mockup.png" alt="Smart Analytics Dashboard" class="showcase-img fade-in">
+        <img *ngIf="activeFeature === 'recurring'" src="assets/images/recurring_mockup.png" alt="Recurring Rules Interface" class="showcase-img fade-in">
+        <img *ngIf="activeFeature === 'alerts'" src="assets/images/alerts_mockup.png" alt="Proactive Alerts Interface" class="showcase-img fade-in">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <h2 class="section-title">Why choose SpendSmart?</h2>
+    <div class="features-grid">
+      <!-- Feature 1 -->
+      <div class="feature-card glass-panel">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Visual Analytics & Insights</h3>
+        <p class="feature-desc">Understand your spending habits instantly with beautifully interactive charts and comprehensive reports.</p>
+      </div>
+      
+      <!-- Feature 2 -->
+      <div class="feature-card glass-panel">
+        <div class="feature-icon">🔔</div>
+        <h3 class="feature-title">Proactive Budget Alerts</h3>
+        <p class="feature-desc">Never overspend again. Get real-time notifications when you approach or exceed your custom limits.</p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-card glass-panel">
+        <div class="feature-icon">⚙️</div>
+        <h3 class="feature-title">Automated Recurring Rules</h3>
+        <p class="feature-desc">Set up your fixed expenses once. Let SpendSmart automatically log your monthly bills on time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Persona-Based Benefit Blocks -->
+  <section class="persona-section" id="benefits">
+    <h2 class="section-title">Built for everyone. Designed for you.</h2>
+    
+    <!-- Block A: For Individuals -->
+    <div class="persona-block glass-panel">
+      <div class="persona-image">
+        <img src="assets/images/analytics_mockup.png" alt="Individual Tracking App">
+      </div>
+      <div class="persona-content">
+        <div class="persona-icon">👤</div>
+        <h3 class="persona-title">For Individuals</h3>
+        <p class="persona-desc">
+          Take absolute control of your personal finances. Enjoy seamless transaction entry, stunning visual pie charts, and simple tools that turn managing your money from a chore into a joy.
+        </p>
+        <ul class="persona-list">
+          <li>✔️ Beautiful visual pie charts</li>
+          <li>✔️ Quick, seamless transaction entry</li>
+          <li>✔️ Strict personal budget tracking</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Block B: For System Admins -->
+    <div class="persona-block reverse glass-panel">
+      <div class="persona-content">
+        <div class="persona-icon">🛡️</div>
+        <h3 class="persona-title">For System Admins</h3>
+        <p class="persona-desc">
+          Get the bird's-eye view you need to manage your ecosystem. Access system-wide reporting, comprehensive user management, and seamless data exports to CSV or PDF in seconds.
+        </p>
+        <ul class="persona-list">
+          <li>✔️ Comprehensive system-wide reporting</li>
+          <li>✔️ Easy-to-use user management tools</li>
+          <li>✔️ Seamless 1-click data exports</li>
+        </ul>
+      </div>
+      <div class="persona-image">
+        <img src="assets/images/admin_mockup.png" alt="Admin Dashboard App">
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <h2 class="section-title">Simple, transparent pricing.</h2>
+    <div class="pricing-grid">
+      
+      <!-- Basic Tier -->
+      <div class="pricing-card glass-panel">
+        <h3 class="tier-name">Basic</h3>
+        <div class="tier-price">₹0<span>/month</span></div>
+        <ul class="tier-features">
+          <li>✔️ Standard Expense Tracking</li>
+          <li>✔️ Basic Analytics</li>
+          <li>✔️ 3 Active Budgets</li>
+          <li>✔️ Standard Support</li>
+        </ul>
+        <button class="btn-outline w-100" routerLink="/register">Get Started Free</button>
+      </div>
+
+      <!-- Premium Tier -->
+      <div class="pricing-card premium-card glass-panel">
+        <div class="popular-badge">Most Popular</div>
+        <h3 class="tier-name">Premium</h3>
+        <div class="tier-price">₹99<span>/month</span></div>
+        <ul class="tier-features">
+          <li>✔️ Everything in Basic</li>
+          <li>✔️ Unlimited Budgets</li>
+          <li>✔️ Unlimited Recurring Rules</li>
+          <li>✔️ Custom Categories</li>
+          <li>✔️ Export Data</li>
+        </ul>
+        <button class="btn-primary w-100" routerLink="/premium">Upgrade to Premium</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Expandable FAQ Accordion -->
+  <section class="faq-section" id="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-accordion">
+      <div class="faq-item glass-panel" *ngFor="let faq of faqs; let i = index" [class.open]="faq.isOpen">
+        <div class="faq-question" (click)="toggleFaq(i)">
+          <h4>{{ faq.question }}</h4>
+          <span class="faq-icon" [class.rotated]="faq.isOpen">▼</span>
+        </div>
+        <div class="faq-answer-wrapper" [style.maxHeight]="faq.isOpen ? '500px' : '0'">
+          <div class="faq-answer">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="text-gradient">SpendSmart</span>
+        <p class="copyright">© 2026 SpendSmart. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a (click)="scrollToSection('home')">Home</a>
+        <a (click)="scrollToSection('features')">Features</a>
+        <a (click)="scrollToSection('pricing')">Pricing</a>
+      </div>
+      <div class="footer-author">
+        <p>Built with ❤️ by <strong>Harsh Raj Singh</strong></p>
+        <a href="mailto:harshrajsingh252@gmail.com">harshrajsingh252@gmail.com</a>
+        <a href="https://github.com/Harsh-Raj-Singh25" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
+</div>
