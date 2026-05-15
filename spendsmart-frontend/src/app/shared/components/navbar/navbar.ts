@@ -14,6 +14,7 @@ import { filter } from 'rxjs/operators';
 export class NavbarComponent {
   isLoggedIn = computed(() => !!this.authService.getCurrentUser());
   showProfileDropdown = false;
+  mobileMenuOpen = false;
   currentRoute = '';
 
   constructor(
@@ -28,6 +29,7 @@ export class NavbarComponent {
     ).subscribe(event => {
       this.currentRoute = event.urlAfterRedirects || event.url;
       this.showProfileDropdown = false; // close dropdown on route change
+      this.mobileMenuOpen = false; // close mobile menu on route change
     });
 
     const user = this.authService.getCurrentUser();
@@ -87,6 +89,20 @@ export class NavbarComponent {
 
   toggleProfileDropdown() {
     this.showProfileDropdown = !this.showProfileDropdown;
+  }
+
+  toggleMobileMenu() {
+    this.showProfileDropdown = false;
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
+  }
+
+  onLandingNav(sectionId: string) {
+    this.scrollToSection(sectionId);
+    this.closeMobileMenu();
   }
 
   goToProfile() {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { TransactionService, Transaction } from '../../core/services/transaction.service';
 import { AuthService } from '../../core/services/auth';
 import { CategoryService, Category } from '../../core/services/category.service';
@@ -21,12 +21,13 @@ type DashboardTransaction = Transaction & {
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('pieChart') pieChartRef!: ElementRef;
   @ViewChild('barChart') barChartRef!: ElementRef;
   
   private pieChartInstance: Chart | null = null;
   private barChartInstance: Chart | null = null;
+  private themeObserver: MutationObserver | null = null;
 
   incomeTransactions: DashboardTransaction[] = [];
   expenseTransactions: DashboardTransaction[] = [];
@@ -93,6 +94,33 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.renderCharts();
       }
     }, 500);
+
+    // Repaint chart colors when theme-related attributes change.
+    this.themeObserver = new MutationObserver(() => {
+      if (this.userId) {
+        this.renderCharts();
+      }
+    });
+
+    this.themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'class', 'style']
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+      this.themeObserver = null;
+    }
+    if (this.pieChartInstance) {
+      this.pieChartInstance.destroy();
+      this.pieChartInstance = null;
+    }
+    if (this.barChartInstance) {
+      this.barChartInstance.destroy();
+      this.barChartInstance = null;
+    }
   }
 
   loadAllData() {
@@ -493,6 +521,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   renderCharts() {
     if (!this.userId) return;
     const now = new Date();
+    const chartTheme = this.getChartThemeColors();
     
     // Category Breakdown (Pie)
     this.analyticsService.getCategoryBreakdown(this.userId, now.getFullYear(), now.getMonth() + 1)
@@ -518,7 +547,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
               responsive: true,
               maintainAspectRatio: false,
               plugins: {
-                legend: { position: 'right', labels: { color: '#cbd5e1' } }
+                legend: {
+                  position: 'right',
+                  labels: {
+                    color: chartTheme.legend
+                  }
+                }
               }
             }
           });
@@ -530,11 +564,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .pipe(catchError(() => of([])))
       .subscribe(data => {
         if (this.barChartInstance) this.barChartInstance.destroy();
-        
-        // If backend returns month labels, use them; otherwise fallback labels keep chart stable.
-        const chartLabels = data?.length ? data.map(d => `Month ${d.month || '?'}`) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        const incomeData = data?.length ? data.map(d => d.income) : [0,0,0,0,0,0];
-        const expenseData = data?.length ? data.map(d => d.expense) : [0,0,0,0,0,0];
+
+        const { labels: chartLabels, incomeData, expenseData } = this.normalizeTrendData(data);
 
         if (this.barChartRef?.nativeElement) {
           this.barChartInstance = new Chart(this.barChartRef.nativeElement, {
@@ -560,11 +591,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
               responsive: true,
               maintainAspectRatio: false,
               scales: {
-                x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                x: {
+                  ticks: { color: chartTheme.tick },
+                  grid: { color: chartTheme.grid }
+                },
+                y: {
+                  beginAtZero: true,
+                  ticks: { color: chartTheme.tick },
+                  grid: { color: chartTheme.grid }
+                }
               },
               plugins: {
-                legend: { labels: { color: '#cbd5e1' } }
+                legend: {
+                  labels: { color: chartTheme.legend }
+                }
               }
             }
           });
@@ -575,5 +615,71 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   getBudgetCategoryName(budgetId: number): string {
     const b = this.budgets.find(x => x.budgetId === budgetId);
     return b ? this.getCategoryName(b.categoryId) : 'Unknown Category';
+  }
+
+  private getChartThemeColors() {
+    const styles = getComputedStyle(document.documentElement);
+    const textSecondary = styles.getPropertyValue('--text-secondary').trim();
+    const borderColor = styles.getPropertyValue('--border-color').trim();
+
+    return {
+      tick: textSecondary || '#475569',
+      legend: textSecondary || '#475569',
+      grid: borderColor || 'rgba(148, 163, 184, 0.35)'
+    };
+  }
+
+  private getLastSixMonthFallbackTrend() {
+    const now = new Date();
+    const labels: string[] = [];
+    const incomeData: number[] = [];
+    const expenseData: number[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+
+      labels.push(d.toLocaleString('en-US', { month: 'short' }));
+
+      const monthlyIncome = this.incomeTransactions
+        .filter(tx => {
+          const txDate = new Date(tx.date);
+          return txDate.getFullYear() === year && txDate.getMonth() === month;
+        })
+        .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+      const monthlyExpense = this.expenseTransactions
+        .filter(tx => {
+          const txDate = new Date(tx.date);
+          return txDate.getFullYear() === year && txDate.getMonth() === month;
+        })
+        .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+      incomeData.push(monthlyIncome);
+      expenseData.push(monthlyExpense);
+    }
+
+    return { labels, incomeData, expenseData };
+  }
+
+  private normalizeTrendData(data: any[]) {
+    const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const points = Array.isArray(data) ? data : [];
+
+    if (!points.length) {
+      return this.getLastSixMonthFallbackTrend();
+    }
+
+    const labels = points.map((d: any) => {
+      const monthRaw = Number(d?.month ?? d?.monthNumber ?? d?.m ?? 0);
+      if (monthRaw >= 1 && monthRaw <= 12) return monthShort[monthRaw - 1];
+      return String(d?.label ?? d?.monthName ?? 'Month');
+    });
+
+    const incomeData = points.map((d: any) => Number(d?.income ?? d?.totalIncome ?? d?.inflow ?? 0));
+    const expenseData = points.map((d: any) => Number(d?.expense ?? d?.totalExpense ?? d?.outflow ?? 0));
+
+    return { labels, incomeData, expenseData };
   }
 }
