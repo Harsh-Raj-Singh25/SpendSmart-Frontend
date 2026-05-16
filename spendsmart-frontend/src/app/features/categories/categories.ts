@@ -1,6 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CategoryService, Category } from '../../core/services/category.service';
@@ -12,8 +11,7 @@ const PRESET_COLORS = ['#FF5733', '#33A1FF', '#FFC300', '#E333FF', '#28A745', '#
 
 @Component({
   selector: 'app-categories',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  standalone: false,
   templateUrl: './categories.html',
   styleUrl: './categories.scss'
 })

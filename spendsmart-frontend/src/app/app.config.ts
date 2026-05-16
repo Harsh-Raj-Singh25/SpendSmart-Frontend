@@ -20,6 +20,7 @@ import { RecurringComponent } from './features/recurring/recurring';
 import { TransactionsComponent } from './features/transactions/transactions';
 import { BudgetsComponent } from './features/budgets/budgets';
 import { NotificationsComponent } from './features/notifications/notifications';
+import { CategoriesComponent } from './features/categories/categories';
 import { UserManagementComponent } from './features/admin/user-management/user-management';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard';
 import { AdminExpensesComponent } from './features/admin/admin-expenses/admin-expenses';
