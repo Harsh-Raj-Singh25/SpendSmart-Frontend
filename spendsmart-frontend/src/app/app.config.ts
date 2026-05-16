@@ -33,7 +33,7 @@ import { LandingComponent } from './features/landing/landing';
 
 @NgModule({
   declarations: [
-    AppComponent, LandingComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, TransactionsComponent, BudgetsComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent, ConfirmDialogComponent
+    AppComponent, LandingComponent, LoginComponent, NavbarComponent, RegisterComponent, ForgotPasswordComponent, DashboardComponent, NotificationsComponent, RecurringComponent, TransactionsComponent, BudgetsComponent, PremiumComponent, UserManagementComponent, ProfileComponent, AdminDashboardComponent, AdminExpensesComponent, AdminIncomesComponent, AdminBudgetsComponent, ConfirmDialogComponent, CategoriesComponent
   ],
   imports: [
     BrowserModule, BrowserAnimationsModule, HttpClientModule,
