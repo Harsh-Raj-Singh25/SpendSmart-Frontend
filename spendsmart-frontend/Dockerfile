@@ -11,5 +11,5 @@ FROM node:20-slim
 WORKDIR /app
 RUN npm install -g serve
 COPY --from=build /app/dist/spendsmart-frontend/browser .
-EXPOSE 4200
-ENTRYPOINT ["serve", "-s", ".", "-l", "0.0.0.0:4200"]
+EXPOSE 80
+ENTRYPOINT ["serve", "-s", ".", "-l", "80"]
